@@ -8,7 +8,7 @@
   <meta name="description" content="aish is an AI-native shell. No bash, just intent. Describe what you want; aish understands, delegates to tools via MCP, and streams results back — keeping you in flow." />
 
   <meta property="og:title" content="aish — The AI-native shell" />
-  <meta property="og:description" content="Replace bash with intent. A stateful agent loop that understands you, manages tools via MCP, and runs your workflows." />
+  <meta property="og:description" content="Replace bash with intent. A stateful agent loop that understands you, manages tools via MCP, and runs your workflows — on Claude or fully offline with local models." />
   <meta property="og:type" content="website" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -85,6 +85,10 @@
             <li>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               MCP-native
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Runs offline
             </li>
           </ul>
         </div>
@@ -182,6 +186,20 @@
             </h3>
             <p>Hand off long, parallel work to background agents. They run, report, and deliver results back into your session when done.</p>
           </article>
+          <article class="card card--feature reveal">
+            <h3 class="card__title">
+              <svg class="card__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 3 21l8.5-2M5 12.5 14 3a4.5 4.5 0 0 1 7 7l-9 9M5 12.5l6.5 6.5M14.5 6.5l3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Local &amp; offline models <span class="chip chip--live">new</span>
+            </h3>
+            <p>Run fully offline with in-process GGUF inference — no API key, no network. Qwen3-1.7B loads on first use; point <code>AISH_LOCAL_MODEL_ID</code> at any GGUF model with no rebuild.</p>
+          </article>
+          <article class="card card--feature reveal">
+            <h3 class="card__title">
+              <svg class="card__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Switch backends live
+            </h3>
+            <p>Hybrid brain: lean on Claude for deep reasoning, then <code>:backend local</code> to go private and offline mid-session. One shell, your choice of cloud or local — per task.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -237,7 +255,7 @@
               </tr>
               <tr>
                 <th scope="row">Works fully offline</th>
-                <td class="ctable__aish"><span class="mark mark--no" data-l="soon"></span></td>
+                <td class="ctable__aish"><span class="mark mark--ok" data-l="yes"></span></td>
                 <td><span class="mark mark--ok" data-l="yes"></span></td>
                 <td><span class="mark mark--ok" data-l="yes"></span></td>
                 <td><span class="mark mark--ok" data-l="yes"></span></td>
@@ -245,7 +263,7 @@
             </tbody>
           </table>
         </div>
-        <p class="compare__note reveal">Offline local-model inference is on the v0.19 roadmap.</p>
+        <p class="compare__note reveal">Offline local-model inference shipped in v0.19 — switch with <code>:backend local</code> and run any GGUF model in-process, no API key required.</p>
       </div>
     </section>
 
@@ -255,35 +273,35 @@
         <div class="section__head reveal">
           <p class="eyebrow">Where it's going</p>
           <h2 class="section__title">Shipping toward 1.0.</h2>
-          <p class="section__lead">Feature-complete core today; offline, durable, and team-scaled next.</p>
+          <p class="section__lead">Offline-capable core today; durable agent state and team-scaled shells next.</p>
         </div>
 
         <ol class="timeline reveal-group">
           <li class="timeline__item timeline__item--now reveal">
             <div class="timeline__rail"><span class="timeline__node"></span></div>
             <div class="timeline__body">
-              <p class="timeline__ver">v0.18.5 <span class="chip chip--live">shipping now</span></p>
-              <p class="timeline__desc">Interactive REPL, MCP tool integration, Claude &amp; Grok backends, sessions, batch jobs, background coordinators, skills.</p>
+              <p class="timeline__ver">v0.19 <span class="chip chip--live">shipping now</span></p>
+              <p class="timeline__desc"><strong>Local &amp; offline models</strong> — in-process GGUF inference (mistral.rs, Qwen3 by default), tool calling from local models, and live <code>:backend</code> switching. Plus the core: REPL, MCP tools, background coordinators, sessions, and skills.</p>
             </div>
           </li>
           <li class="timeline__item reveal">
             <div class="timeline__rail"><span class="timeline__node"></span></div>
             <div class="timeline__body">
-              <p class="timeline__ver">v0.19.0 <span class="chip">next</span></p>
-              <p class="timeline__desc">Local llama.cpp backend for offline inference, tool calling from local models, tougher error recovery in agent loops.</p>
+              <p class="timeline__ver">v0.20 <span class="chip">next</span></p>
+              <p class="timeline__desc">Agent &amp; skill registry, durable agent state across restarts, and tougher error recovery in long-running agent loops.</p>
             </div>
           </li>
           <li class="timeline__item reveal">
             <div class="timeline__rail"><span class="timeline__node"></span></div>
             <div class="timeline__body">
-              <p class="timeline__ver">v0.20.0 <span class="chip">Q3 2025</span></p>
-              <p class="timeline__desc">Agent &amp; skill registry, durable agent state across restarts, team-scoped shells with shared, auditable workflows.</p>
+              <p class="timeline__ver">v0.21 <span class="chip">later</span></p>
+              <p class="timeline__desc">Team-scoped shells with shared, auditable workflows and synced skills across a team.</p>
             </div>
           </li>
           <li class="timeline__item reveal">
             <div class="timeline__rail"><span class="timeline__node"></span></div>
             <div class="timeline__body">
-              <p class="timeline__ver">v1.0.0 <span class="chip">Q4 2025</span></p>
+              <p class="timeline__ver">v1.0 <span class="chip">milestone</span></p>
               <p class="timeline__desc">Production stability guarantee, Kubernetes / cloud-native runners, enterprise features — SAML and audit logs.</p>
             </div>
           </li>

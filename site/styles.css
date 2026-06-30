@@ -329,6 +329,16 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 }
 .card__icon { color: var(--accent-hi); flex: none; }
 .card p { color: var(--text-muted); line-height: 1.6; }
+.card p code, .timeline__desc code, .compare__note code {
+  font-family: var(--font-mono);
+  font-size: .88em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  color: var(--accent-hi);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  white-space: nowrap;
+}
 
 /* ============================================================
    COMPARE TABLE

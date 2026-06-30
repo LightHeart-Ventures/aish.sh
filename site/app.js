@@ -64,6 +64,11 @@
     { type: "out", cls: "t-ok",  text: "✓ draft PR #128 opened — review-ready" },
     { type: "gap" },
     { type: "prompt" },
+    { type: "type", cls: "t-user", text: ":backend local" },
+    { type: "out", cls: "t-sys", text: "→ loading Qwen3-1.7B · in-process · GGUF" },
+    { type: "out", cls: "t-ok",  text: "✓ backend: local — offline, no API key needed" },
+    { type: "gap" },
+    { type: "prompt" },
     { type: "cursorhold" }
   ];
 

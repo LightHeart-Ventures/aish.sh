@@ -5,7 +5,9 @@ locals {
   aliases = var.create_www ? [var.domain_name, "www.${var.domain_name}"] : [var.domain_name]
   sans    = var.create_www ? ["www.${var.domain_name}"] : []
 
-  bucket_name = coalesce(var.bucket_name, "aish-site-${data.aws_caller_identity.current.account_id}")
+  # NOTE: the `terraform` IAM user's policy (Terraform_New_Accounts) grants s3:*
+  # only on `arn:aws:s3:::hohertz-*`, so the bucket name MUST keep the hohertz- prefix.
+  bucket_name = coalesce(var.bucket_name, "hohertz-aish-site-${data.aws_caller_identity.current.account_id}")
 
   zone_id = var.create_hosted_zone ? aws_route53_zone.this[0].zone_id : var.hosted_zone_id
 

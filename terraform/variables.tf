@@ -40,7 +40,7 @@ variable "hosted_zone_id" {
 }
 
 variable "bucket_name" {
-  description = "Override the S3 origin bucket name. Defaults to aish-site-<account_id> when empty."
+  description = "Override the S3 origin bucket name. Defaults to hohertz-aish-site-<account_id> when empty (the hohertz- prefix is required by the terraform IAM user's S3 policy)."
   type        = string
   default     = ""
 }

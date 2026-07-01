@@ -101,6 +101,9 @@ without accounts, roles, and an audit trail.
 ### Phase 0 — Substrate (weeks 0–8) · *prerequisite*
 The plumbing that unblocks everything. Low glamour, non-negotiable.
 - **aish CLI ↔ aish.sh login handshake** (the managed-plane client)
+- **Hook-forwarder binary** wired into `~/.aish/hooks.json` — the single seam that
+  feeds trace ingest, memory sync, policy vetoes, and metering (no client fork; see
+  [`04-client-integration.md`](./04-client-integration.md))
 - **F3 RBAC / tenancy**, **F1 SSO** (Atum members/roles head start)
 - **F4 audit/event log** (Atum event bus head start)
 - **Metering pipeline** + **G6 usage caps/budgets** (already in Atum)

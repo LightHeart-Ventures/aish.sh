@@ -26,6 +26,17 @@
 - [ ] Kubernetes / cloud-native runners
 - [ ] Enterprise features (SAML, audit logs)
 
+## Enterprise / Managed Tier (aish.sh control plane)
+
+The open-core, managed offering — tiered memory, LLM tracing + tuning
+recommendations, managed skills, a managed MCP proxy, a marketplace, and a plugin
+registry. Full market research, feature catalog, and stack-ranked build order:
+
+- **[Enterprise Product Strategy →](./enterprise/README.md)**
+  - [Market & competitive research](./enterprise/01-market-research.md)
+  - [Feature catalog (9 pillars)](./enterprise/02-feature-catalog.md)
+  - [Stack-ranked roadmap + pricing](./enterprise/03-stack-rank.md)
+
 ---
 
 *See also: [Feature Proposals](./feature-proposals/), [GitHub Issues](https://github.com/LightHeart-Ventures/aish/issues)*

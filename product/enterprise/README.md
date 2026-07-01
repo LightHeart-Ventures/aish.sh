@@ -26,6 +26,11 @@ CLI stays free to drive adoption, and `aish.sh` sells the managed control plane
    capabilities, the MCP-proxy and skill-registry seams, and the small net-new
    client-side glue (a hook-forwarder + login handshake). Read this to see that
    every pillar has a concrete attach point in the existing client.
+5. **[05-architecture-backend.md](./05-architecture-backend.md)** — **START HERE for 
+   implementation**. The detailed AWS tech stack, data architecture (Neon + pgvector 
+   rationale), serverless compute blueprint (Lambda + SQS + EventBridge), multi-tenant 
+   schema, Phase 0–3 roadmap, cost model, and deployment patterns. Decision record: 
+   why Neon pgvector over Pinecone for tiered memory archival.
 
 ## The one-paragraph thesis
 

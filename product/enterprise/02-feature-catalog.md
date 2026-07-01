@@ -137,4 +137,7 @@ These aren't sold as features but every pillar needs them — sequence them firs
 
 Atum already provides working versions of #1, most of #4, usage caps toward #2,
 and the event bus. The critical net-new glue is the **aish-CLI-to-aish.sh login +
-managed-plane client**.
+managed-plane client** — concretely, a **hook-forwarder binary** wired into the
+client's `~/.aish/hooks.json` plus config pointers for the MCP gateway and skill
+registry. See [`04-client-integration.md`](./04-client-integration.md) for the full
+seam map — the OSS client attaches via hooks/MCP/skills with **no fork**.

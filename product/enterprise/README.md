@@ -2,10 +2,12 @@
 
 *Last updated: 2026-07-01*
 
-The strategy for building a **managed / enterprise** tier on top of the open-source
-[`aish`](https://github.com/LightHeart-Ventures/aish) shell — an **open-core** play
-where the CLI stays free and `aish.sh` sells the control plane (memory, observability,
-governance, registries, and MCP/model proxies).
+**Architecture:** [`LightHeart-Ventures/aish`](https://github.com/LightHeart-Ventures/aish)
+is the **open-source client**; the commercial offering is a **backend / control plane**
+that the OSS client plugs into through its existing extension surfaces — **hooks,
+skills, MCP, and config** — *without forking the binary*. Classic **open-core**: the
+CLI stays free to drive adoption, and `aish.sh` sells the managed control plane
+(memory, observability, governance, registries, and MCP/model proxies).
 
 ## Read in this order
 
@@ -19,6 +21,11 @@ governance, registries, and MCP/model proxies).
 3. **[03-stack-rank.md](./03-stack-rank.md)** — the scored, ranked, and phased build
    order (demand × ease × moat), a demand/ease 2×2, the "first 5 to build," and a
    packaging/pricing hypothesis.
+4. **[04-client-integration.md](./04-client-integration.md)** — how the backend
+   attaches to the OSS client: the 33-event hook catalog mapped to backend
+   capabilities, the MCP-proxy and skill-registry seams, and the small net-new
+   client-side glue (a hook-forwarder + login handshake). Read this to see that
+   every pillar has a concrete attach point in the existing client.
 
 ## The one-paragraph thesis
 

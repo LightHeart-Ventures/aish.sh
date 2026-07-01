@@ -26,6 +26,11 @@ CLI stays free to drive adoption, and `aish.sh` sells the managed control plane
    capabilities, the MCP-proxy and skill-registry seams, and the small net-new
    client-side glue (a hook-forwarder + login handshake). Read this to see that
    every pillar has a concrete attach point in the existing client.
+5. **[05-aish-enterprise-plugin.md](./05-aish-enterprise-plugin.md)** — packages
+   04's net-new client glue as a single OSS-client **plugin**, `aish_enterprise`
+   (scaffolded at [`/plugins/aish_enterprise/`](../../plugins/aish_enterprise/)), so
+   the commercial features ship without touching aish OSS source. Names the small,
+   generic plugin capabilities the client must add to host it (the Phase-0.5 unlock).
 
 ## The one-paragraph thesis
 

@@ -1,0 +1,76 @@
+{
+  "//": "aish_enterprise event-catalog contributions. These entries are MERGED into the client's real 33-event hooks.json registry (src/hooks.rs) by the plugin loader — they are NOT the plugin's lifecycle hooks (see hooks/ + plugin.json lifecycle_hooks_manifest). Every entry routes an event's stdin JSON payload to the forwarder `aish-enterprise-hook` (installed on PATH by the plugin). Payloads carry NO credential values — the forwarder authenticates itself from ${env:AISH_ENTERPRISE_API_KEY}. The single argv distinguishes the event so one binary serves them all.",
+
+  "hooks": [
+    {
+      "//pillar": "F, G — governance. PreToolUse is the ONLY blocking entry: a non-zero exit => Decision::Deny(reason from stdout line 1). `required` is templated from config.offline_default (deny => required:true => fail-closed). Omitted entirely when config.policy_enforcement == 'off'.",
+      "event": "PreToolUse",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["policy-check"], "timeout_ms": 1500, "required": false }
+    },
+    { "//pillar": "F4, G — audit + approval workflow.",
+      "event": "PermissionRequest",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["audit"], "timeout_ms": 3000 } },
+    { "event": "PermissionDenied",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["audit"], "timeout_ms": 3000 } },
+
+    { "//pillar": "B — trace ingest / observability / aish doctor / cost analytics.",
+      "event": "UserPromptSubmit",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["trace"], "timeout_ms": 3000 } },
+    { "event": "TurnEnd",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["trace"], "timeout_ms": 3000 } },
+    { "event": "TurnEndFailure",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["trace"], "timeout_ms": 3000 } },
+    { "event": "PostToolUse",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["trace"], "timeout_ms": 3000 } },
+    { "event": "PostToolUseFailure",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["trace"], "timeout_ms": 3000 } },
+
+    { "//pillar": "A — tiered memory sync (hot->recent) + archival (recent->archived).",
+      "event": "MemoryStored",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["memory"], "timeout_ms": 4000 } },
+    { "event": "PreCompact",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["memory"], "timeout_ms": 4000 } },
+    { "event": "PostCompact",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["memory"], "timeout_ms": 4000 } },
+
+    { "//pillar": "C, E — managed-skill telemetry + registry usage metering.",
+      "event": "SkillMatched",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["skill-telemetry"], "timeout_ms": 2000 } },
+
+    { "//pillar": "Substrate, G — login handshake + pull managed config at session boundaries.",
+      "event": "SessionStart",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["session"], "timeout_ms": 5000 } },
+    { "event": "InstructionsLoaded",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["session"], "timeout_ms": 3000 } },
+    { "event": "McpServersReady",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["session"], "timeout_ms": 3000 } },
+
+    { "//pillar": "I, B — fleet / runtime observability for hosted + local coordinators.",
+      "event": "WorkerStart",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["fleet"], "timeout_ms": 3000 } },
+    { "event": "WorkerStop",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["fleet"], "timeout_ms": 3000 } },
+    { "event": "CoordinatorPhaseChanged",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["fleet"], "timeout_ms": 3000 } },
+    { "event": "BackgroundJobStart",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["fleet"], "timeout_ms": 3000 } },
+    { "event": "BackgroundJobStop",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["fleet"], "timeout_ms": 3000 } },
+    { "event": "BatchFanOut",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["fleet"], "timeout_ms": 3000 } },
+
+    { "//pillar": "B7, I6 — alerting + human-in-the-loop escalation (email/Slack).",
+      "event": "LoopGuardTripped",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["alert"], "timeout_ms": 4000 } },
+    { "event": "EscalationRequested",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["alert"], "timeout_ms": 4000 } },
+    { "event": "OperatorMessageReceived",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["alert"], "timeout_ms": 4000 } },
+
+    { "//pillar": "G — fleet version management / managed rollout.",
+      "event": "UpdateAvailable",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["fleet"], "timeout_ms": 3000 } },
+    { "event": "UpdateApplied",
+      "action": { "type": "command", "program": "aish-enterprise-hook", "args": ["fleet"], "timeout_ms": 3000 } }
+  ]
+}

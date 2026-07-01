@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# aish-enterprise-hook :: the single event forwarder wired into hooks.json
+# ------------------------------------------------------------------------------
+# One binary serves every event; the first argv selects the lane. The event's
+# JSON payload arrives on STDIN (never as an arg — it can be large / odd bytes).
+# Payloads carry NO credential values (src/hooks.rs trust model); this forwarder
+# supplies its own auth from the environment exported by hooks/on_init.sh.
+#
+# Reference implementation in bash for review clarity. The shipped plugin
+# installs a small static binary of the same contract on PATH (design
+# `provides.tools` + bin injection).
+#
+# LANES:
+#   trace           observe   -> POST $INGEST_URL/v1/traces
+#   memory          observe   -> POST $INGEST_URL/v1/memory
+#   skill-telemetry observe   -> POST $INGEST_URL/v1/skills
+#   fleet           observe   -> POST $INGEST_URL/v1/fleet
+#   alert           observe   -> POST $INGEST_URL/v1/alerts
+#   audit           observe   -> POST $INGEST_URL/v1/audit
+#   session         observe   -> POST $INGEST_URL/v1/session  (login/config beacon)
+#   policy-check    BLOCKING  -> POST $POLICY_URL/v1/decide; exit!=0 + reason => Deny
+#
+# Observe lanes ALWAYS exit 0 (best-effort; a telemetry failure must never break
+# a turn). Only policy-check can veto.
+set -uo pipefail
+
+LANE="${1:-trace}"
+PAYLOAD="$(cat)"
+
+INGEST_URL="${AISH_ENTERPRISE_INGEST_URL:-https://ingest.aish.sh}"
+POLICY_URL="${AISH_ENTERPRISE_POLICY_URL:-https://policy.aish.sh}"
+TENANT="${AISH_ENTERPRISE_TENANT:-}"
+KEY="${AISH_ENTERPRISE_API_KEY:-}"
+SAMPLING="${AISH_ENTERPRISE_TRACE_SAMPLING:-1.0}"
+ENFORCE="${AISH_ENTERPRISE_POLICY_ENFORCEMENT:-audit}"    # off|audit|enforce
+OFFLINE_DEFAULT="${AISH_ENTERPRISE_OFFLINE_DEFAULT:-allow}" # allow|deny
+
+# No tenant binding => nothing to ship. Fail open everywhere.
+[ -z "$TENANT" ] && exit 0
+
+post() { # $1=path  (payload on stdin already captured in $PAYLOAD)
+  command -v curl >/dev/null 2>&1 || return 0
+  curl --fail --silent --show-error --max-time 4 \
+    -H "Authorization: Bearer ${KEY}" \
+    -H "Content-Type: application/json" \
+    -H "X-Aish-Tenant: ${TENANT}" \
+    --data-binary @- "${INGEST_URL}${1}" >/dev/null 2>&1 || true
+}
+
+case "$LANE" in
+  trace)           printf '%s' "$PAYLOAD" | post "/v1/traces" ;    exit 0 ;;
+  memory)          printf '%s' "$PAYLOAD" | post "/v1/memory" ;    exit 0 ;;
+  skill-telemetry) printf '%s' "$PAYLOAD" | post "/v1/skills" ;    exit 0 ;;
+  fleet)           printf '%s' "$PAYLOAD" | post "/v1/fleet" ;     exit 0 ;;
+  alert)           printf '%s' "$PAYLOAD" | post "/v1/alerts" ;    exit 0 ;;
+  audit)           printf '%s' "$PAYLOAD" | post "/v1/audit" ;     exit 0 ;;
+  session)         printf '%s' "$PAYLOAD" | post "/v1/session" ;   exit 0 ;;
+
+  policy-check)
+    # off => never installed, but guard anyway.
+    [ "$ENFORCE" = "off" ] && exit 0
+    if ! command -v curl >/dev/null 2>&1; then
+      [ "$OFFLINE_DEFAULT" = "deny" ] && { echo "aish_enterprise: policy endpoint unavailable (fail-closed)"; exit 1; }
+      exit 0
+    fi
+    RESP="$(printf '%s' "$PAYLOAD" | curl --fail --silent --max-time 1 \
+      -H "Authorization: Bearer ${KEY}" \
+      -H "Content-Type: application/json" \
+      -H "X-Aish-Tenant: ${TENANT}" \
+      --data-binary @- "${POLICY_URL}/v1/decide" 2>/dev/null)" || {
+        # endpoint unreachable
+        [ "$OFFLINE_DEFAULT" = "deny" ] && { echo "aish_enterprise: policy endpoint unreachable (fail-closed)"; exit 1; }
+        exit 0
+      }
+    # Expected: {"decision":"allow|deny","reason":"..."}
+    DECISION="$(printf '%s' "$RESP" | sed -n 's/.*"decision"[[:space:]]*:[[:space:]]*"\([a-z]*\)".*/\1/p')"
+    REASON="$(printf '%s' "$RESP" | sed -n 's/.*"reason"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
+    if [ "$DECISION" = "deny" ]; then
+      # audit mode observes but never blocks; enforce mode vetoes.
+      if [ "$ENFORCE" = "enforce" ]; then
+        echo "${REASON:-blocked by org policy}"   # stdout line 1 => Decision::Deny reason
+        exit 1
+      fi
+    fi
+    exit 0 ;;
+
+  *) exit 0 ;;
+esac

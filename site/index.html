@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0E0B16" />
+  <title>aish — The AI-native shell</title>
+  <meta name="description" content="aish is an AI-native shell. No bash, just intent. Describe what you want; aish understands, delegates to tools via MCP, and streams results back — keeping you in flow." />
+
+  <meta property="og:title" content="aish — The AI-native shell" />
+  <meta property="og:description" content="Replace bash with intent. A stateful agent loop that understands you, manages tools via MCP, and runs your workflows — on Claude or fully offline with local models." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ===================== NAV ===================== -->
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <a class="brand" href="#top" aria-label="aish home">
+        <svg class="brand__mark" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="1.5" y="3.5" width="21" height="17" rx="4.5" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M6 9.5l3 2.5-3 2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12.5 15h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <span class="brand__name">aish</span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#problem">Why</a>
+        <a href="#features">Features</a>
+        <a href="#compare">Compare</a>
+        <a href="#roadmap">Roadmap</a>
+      </nav>
+
+      <div class="nav__cta">
+        <a class="btn btn--ghost" href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5A10.5 10.5 0 0 0 1.5 12a10.5 10.5 0 0 0 7.18 9.96c.53.1.72-.23.72-.5v-1.9c-2.92.64-3.54-1.25-3.54-1.25-.48-1.22-1.17-1.54-1.17-1.54-.95-.65.07-.64.07-.64 1.06.08 1.62 1.09 1.62 1.09.94 1.6 2.46 1.14 3.06.87.1-.68.37-1.14.67-1.4-2.33-.27-4.78-1.17-4.78-5.2 0-1.15.41-2.08 1.08-2.82-.11-.27-.47-1.34.1-2.78 0 0 .88-.28 2.88 1.07a9.9 9.9 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.44.21 2.51.1 2.78.68.74 1.08 1.67 1.08 2.82 0 4.04-2.46 4.92-4.8 5.18.38.33.71.97.71 1.96v2.9c0 .28.19.61.73.5A10.5 10.5 0 0 0 22.5 12 10.5 10.5 0 0 0 12 1.5Z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a class="btn btn--primary" href="#install">
+          <span class="btn__label">Install</span>
+          <svg class="btn__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" id="hero">
+      <div class="hero__glow" aria-hidden="true"></div>
+      <div class="hero__inner section__content">
+        <div class="hero__copy reveal">
+          <h1 class="hero__title">
+            Replace <span class="strike">bash</span> with
+            <span class="accent">intent<span class="caret" aria-hidden="true"></span></span>
+          </h1>
+          <p class="hero__lead">
+            aish is an AI-native shell — no POSIX layer underneath, just a stateful
+            agent loop. Describe what you want; it understands, calls the right tools
+            over MCP, reads and writes files, and runs your programs.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--primary btn--lg" href="#install">
+              <span class="btn__label">Get started</span>
+              <svg class="btn__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn--ghost btn--lg" href="#features">
+              <span class="btn__label">See how it works</span>
+            </a>
+          </div>
+          <ul class="hero__meta">
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Open source · Apache 2.0
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Built in Rust
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              MCP-native
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Runs offline
+            </li>
+          </ul>
+        </div>
+
+        <!-- Terminal demo -->
+        <div class="terminal reveal" aria-hidden="true">
+          <div class="terminal__bar">
+            <span class="terminal__dot"></span>
+            <span class="terminal__dot"></span>
+            <span class="terminal__dot"></span>
+            <span class="terminal__title">aish — session</span>
+          </div>
+          <pre class="terminal__body" id="term"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PROBLEM ===================== -->
+    <section class="section problem" id="problem">
+      <div class="section__content">
+        <div class="section__head reveal">
+          <p class="eyebrow">The cost of context-switching</p>
+          <h2 class="section__title">Your work lives in five tools that don't talk to each other.</h2>
+          <p class="section__lead">
+            A terminal for commands. An IDE for code. Dashboards for infra. Chat for
+            the team. Every switch is manual, and the thread of what you were
+            actually trying to do gets dropped on the floor.
+          </p>
+        </div>
+
+        <div class="grid grid--3 reveal-group">
+          <article class="card reveal">
+            <h3 class="card__title">
+              <svg class="card__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              Manual tool juggling
+            </h3>
+            <p>You memorize flags for a dozen CLIs and translate intent into syntax in your head, every single time.</p>
+          </article>
+          <article class="card reveal">
+            <h3 class="card__title">
+              <svg class="card__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v5m0 3.5h.01M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.42 0Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Lost context
+            </h3>
+            <p>Each window is a fresh start. The reasoning behind a chain of commands evaporates the moment you alt-tab.</p>
+          </article>
+          <article class="card reveal">
+            <h3 class="card__title">
+              <svg class="card__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Flow, interrupted
+            </h3>
+            <p>The constant switching tax is paid in minutes — and in the deep focus you never quite get back.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== FEATURES ===================== -->
+    <section class="section features" id="features">
+      <div class="section__content">
+        <div class="section__head reveal">
+          <p class="eyebrow">One conversational surface</p>
+          <h2 class="section__title">Intent in. Results out. Nothing in between.</h2>
+          <p class="section__lead">
+            aish is a single stateful agent that understands what you mean, picks the
+            right tools, and streams the work back to you — so you stay in flow.
+          </p>
+        </div>
+
+        <div class="grid grid--2 reveal-group">
+          <article class="card card--feature reveal">
+            <h3 class="card__title">
+              <svg class="card__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 9h8M8 13h5m-9 7 3-3h9a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v14Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Natural-language intent
+            </h3>
+            <p>Stop translating goals into syntax. Say <em>“tail the error logs for the api service over the last hour”</em> and aish does the parsing.</p>
+          </article>
+          <article class="card card--feature reveal">
+            <h3 class="card__title">
+              <svg class="card__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 3 4 14h6l-1 7 7-12h-6l1-6Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              MCP-native tools
+            </h3>
+            <p>File ops, git, HTTP, cloud APIs — anything exposed over the Model Context Protocol becomes a first-class capability in your shell.</p>
+          </article>
+          <article class="card card--feature reveal">
+            <h3 class="card__title">
+              <svg class="card__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 3 2 4 2 7h10c0-3 2-4 2-7a7 7 0 0 0-7-7ZM9 21h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Stateful agent loop
+            </h3>
+            <p>aish remembers the session — env, jobs, what just happened — and reasons across steps instead of forgetting between commands.</p>
+          </article>
+          <article class="card card--feature reveal">
+            <h3 class="card__title">
+              <svg class="card__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 17V9m5 8V5m5 12v-6m5 6V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              Background coordinators
+            </h3>
+            <p>Hand off long, parallel work to background agents. They run, report, and deliver results back into your session when done.</p>
+          </article>
+          <article class="card card--feature reveal">
+            <h3 class="card__title">
+              <svg class="card__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 3 21l8.5-2M5 12.5 14 3a4.5 4.5 0 0 1 7 7l-9 9M5 12.5l6.5 6.5M14.5 6.5l3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Local &amp; offline models <span class="chip chip--live">new</span>
+            </h3>
+            <p>Run fully offline with in-process GGUF inference — no API key, no network. Qwen3-1.7B loads on first use; point <code>AISH_LOCAL_MODEL_ID</code> at any GGUF model with no rebuild.</p>
+          </article>
+          <article class="card card--feature reveal">
+            <h3 class="card__title">
+              <svg class="card__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Switch backends live
+            </h3>
+            <p>Hybrid brain: lean on Claude for deep reasoning, then <code>:backend local</code> to go private and offline mid-session. One shell, your choice of cloud or local — per task.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== COMPARE ===================== -->
+    <section class="section compare" id="compare">
+      <div class="section__content">
+        <div class="section__head reveal">
+          <p class="eyebrow">Where it stands</p>
+          <h2 class="section__title">A different kind of shell.</h2>
+          <p class="section__lead">aish trades the POSIX layer for an agent loop. Here's how that lands against the shells you know.</p>
+        </div>
+
+        <div class="table-wrap reveal">
+          <table class="ctable">
+            <thead>
+              <tr>
+                <th scope="col" class="ctable__feature">Capability</th>
+                <th scope="col" class="ctable__aish">aish</th>
+                <th scope="col">bash</th>
+                <th scope="col">zsh</th>
+                <th scope="col">fish</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Natural-language intent</th>
+                <td class="ctable__aish"><span class="mark mark--ok" data-l="yes"></span></td>
+                <td><span class="mark mark--no" data-l="no"></span></td>
+                <td><span class="mark mark--no" data-l="no"></span></td>
+                <td><span class="mark mark--no" data-l="no"></span></td>
+              </tr>
+              <tr>
+                <th scope="row">Stateful agents</th>
+                <td class="ctable__aish"><span class="mark mark--ok" data-l="yes"></span></td>
+                <td><span class="mark mark--no" data-l="no"></span></td>
+                <td><span class="mark mark--no" data-l="no"></span></td>
+                <td><span class="mark mark--no" data-l="no"></span></td>
+              </tr>
+              <tr>
+                <th scope="row">MCP tool integration</th>
+                <td class="ctable__aish"><span class="mark mark--ok" data-l="yes"></span></td>
+                <td><span class="mark mark--no" data-l="no"></span></td>
+                <td><span class="mark mark--no" data-l="no"></span></td>
+                <td><span class="mark mark--no" data-l="no"></span></td>
+              </tr>
+              <tr>
+                <th scope="row">No POSIX shell required</th>
+                <td class="ctable__aish"><span class="mark mark--ok" data-l="yes"></span></td>
+                <td><span class="mark mark--no" data-l="no"></span></td>
+                <td><span class="mark mark--ok" data-l="yes"></span></td>
+                <td><span class="mark mark--ok" data-l="yes"></span></td>
+              </tr>
+              <tr>
+                <th scope="row">Works fully offline</th>
+                <td class="ctable__aish"><span class="mark mark--ok" data-l="yes"></span></td>
+                <td><span class="mark mark--ok" data-l="yes"></span></td>
+                <td><span class="mark mark--ok" data-l="yes"></span></td>
+                <td><span class="mark mark--ok" data-l="yes"></span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="compare__note reveal">Offline local-model inference shipped in v0.19 — switch with <code>:backend local</code> and run any GGUF model in-process, no API key required.</p>
+      </div>
+    </section>
+
+    <!-- ===================== ROADMAP ===================== -->
+    <section class="section roadmap" id="roadmap">
+      <div class="section__content">
+        <div class="section__head reveal">
+          <p class="eyebrow">Where it's going</p>
+          <h2 class="section__title">Shipping toward 1.0.</h2>
+          <p class="section__lead">Offline-capable core today; durable agent state and team-scaled shells next.</p>
+        </div>
+
+        <ol class="timeline reveal-group">
+          <li class="timeline__item timeline__item--now reveal">
+            <div class="timeline__rail"><span class="timeline__node"></span></div>
+            <div class="timeline__body">
+              <p class="timeline__ver">v0.19 <span class="chip chip--live">shipping now</span></p>
+              <p class="timeline__desc"><strong>Local &amp; offline models</strong> — in-process GGUF inference (mistral.rs, Qwen3 by default), tool calling from local models, and live <code>:backend</code> switching. Plus the core: REPL, MCP tools, background coordinators, sessions, and skills.</p>
+            </div>
+          </li>
+          <li class="timeline__item reveal">
+            <div class="timeline__rail"><span class="timeline__node"></span></div>
+            <div class="timeline__body">
+              <p class="timeline__ver">v0.20 <span class="chip">next</span></p>
+              <p class="timeline__desc">Agent &amp; skill registry, durable agent state across restarts, and tougher error recovery in long-running agent loops.</p>
+            </div>
+          </li>
+          <li class="timeline__item reveal">
+            <div class="timeline__rail"><span class="timeline__node"></span></div>
+            <div class="timeline__body">
+              <p class="timeline__ver">v0.21 <span class="chip">later</span></p>
+              <p class="timeline__desc">Team-scoped shells with shared, auditable workflows and synced skills across a team.</p>
+            </div>
+          </li>
+          <li class="timeline__item reveal">
+            <div class="timeline__rail"><span class="timeline__node"></span></div>
+            <div class="timeline__body">
+              <p class="timeline__ver">v1.0 <span class="chip">milestone</span></p>
+              <p class="timeline__desc">Production stability guarantee, Kubernetes / cloud-native runners, enterprise features — SAML and audit logs.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===================== INSTALL / CTA ===================== -->
+    <section class="section cta" id="install">
+      <div class="cta__glow" aria-hidden="true"></div>
+      <div class="section__content cta__content reveal">
+        <h2 class="cta__title">Replace bash with intent.</h2>
+        <p class="cta__lead">Clone, build, and open the REPL. You'll be talking to your shell in under two minutes.</p>
+
+        <div class="codeblock">
+          <code class="codeblock__code" id="install-code">git clone https://github.com/LightHeart-Ventures/aish
+cd aish &amp;&amp; cargo build --release
+./target/release/aish</code>
+          <button class="codeblock__copy" id="copyBtn" type="button" aria-label="Copy install commands">
+            <svg class="copy-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M5 15V6a2 2 0 0 1 2-2h9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
+
+        <div class="cta__actions">
+          <a class="btn btn--primary btn--lg" href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">
+            <span class="btn__label">Star on GitHub</span>
+            <svg class="btn__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn btn--ghost btn--lg" href="https://github.com/LightHeart-Ventures/aish/issues" target="_blank" rel="noopener">
+            <span class="btn__label">Open an issue</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="section__content footer__inner">
+      <div class="footer__brand">
+        <a class="brand" href="#top" aria-label="aish home">
+          <svg class="brand__mark" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="1.5" y="3.5" width="21" height="17" rx="4.5" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M6 9.5l3 2.5-3 2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12.5 15h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span class="brand__name">aish</span>
+        </a>
+        <p class="footer__tag">The AI-native shell. No bash, just intent.</p>
+      </div>
+
+      <nav class="footer__cols" aria-label="Footer">
+        <div class="footer__col">
+          <p class="footer__h">Product</p>
+          <a href="#features">Features</a>
+          <a href="#compare">Compare</a>
+          <a href="#roadmap">Roadmap</a>
+        </div>
+        <div class="footer__col">
+          <p class="footer__h">Resources</p>
+          <a href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">Docs</a>
+          <a href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/LightHeart-Ventures/aish/issues" target="_blank" rel="noopener">Issues</a>
+        </div>
+        <div class="footer__col">
+          <p class="footer__h">Project</p>
+          <a href="#install">Install</a>
+          <a href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">Contribute</a>
+        </div>
+      </nav>
+    </div>
+    <div class="section__content footer__bar">
+      <span>© <span id="yr"></span> LightHeart Ventures</span>
+      <span>Apache 2.0 · Built in Rust</span>
+    </div>
+  </footer>
+
+  <!-- copy toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Copied to clipboard</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -36,7 +36,7 @@ aish.sh/
 ## Quick Links
 
 - **GitHub**: [LightHeart-Ventures/aish](https://github.com/LightHeart-Ventures/aish)
-- **Code**: Rust, ~0.18.5 (see Cargo.toml)
+- **Code**: Rust, 0.29.3 (see Cargo.toml)
 - **License**: Apache 2.0
 
 ## Get Involved

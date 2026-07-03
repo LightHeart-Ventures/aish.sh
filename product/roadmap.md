@@ -2,22 +2,28 @@
 
 ## Current Version
 
-**v0.18.5** — Feature-complete core:
+**v0.29.3** — Shipped and stable:
 - Interactive REPL with MCP tool integration
-- Claude/Grok backend support
-- Session management, batch jobs, background coordinators
-- Skill loading and execution
+- Claude / Grok / **local (llama.cpp, offline)** backends
+- Session management, batch jobs, background coordinators + fan-out
+- Skill loading and execution; **plugin skill-registry**
+- **Durable cross-session goals + memory** (`~/.aish/aish.db`)
+- Lifecycle hooks with a `PreToolUse` blocking gate
 
-## v0.19.0 (next)
+> ⚠️ **This roadmap needs a human re-plan.** Most items previously listed as
+> "next" have already shipped (see below); dates (Q3/Q4 2025) are stale.
 
-- [ ] Local llama.cpp backend (offline inference)
-- [ ] Tool calling from local models
-- [ ] Improved error recovery in agent loops
+## Shipped since this roadmap was written
 
-## v0.20.0 (Q3 2025)
+- [x] Local llama.cpp backend (offline inference) — *0.19.3 / 0.20.0*
+- [x] Tool calling from local models — *0.19.x*
+- [x] Improved error recovery in agent loops — *0.21.0*
+- [x] Skill registry (plugin-contributed skills) — *Unreleased*
+- [x] Durable agent state (persist across restarts) — *goals/memory in `aish.db`*
 
-- [ ] Agent marketplace / skill registry
-- [ ] Durable agent state (persist across restarts)
+## Still open
+
+- [ ] Agent marketplace (browsable/publishable)
 - [ ] Team-scoped shells (shared agents, auditable workflows)
 
 ## v1.0.0 (Q4 2025)

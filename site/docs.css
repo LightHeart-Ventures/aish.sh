@@ -1,0 +1,177 @@
+/* ============================================================
+   aish docs — layout on top of styles.css design tokens
+   Sidebar + content reading column. Dark mode, violet accent.
+   Reuses :root tokens, .btn, .codeblock, .footer from styles.css.
+   ============================================================ */
+
+/* ---------- docs shell ---------- */
+.docs {
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  padding-top: calc(var(--nav-h) + 40px);
+  padding-bottom: 96px;
+  display: grid;
+  grid-template-columns: 244px minmax(0, 1fr);
+  gap: 56px;
+  align-items: start;
+}
+
+/* ---------- sidebar ---------- */
+.docs__side {
+  position: sticky;
+  top: calc(var(--nav-h) + 24px);
+  align-self: start;
+  max-height: calc(100vh - var(--nav-h) - 48px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.docs__side::-webkit-scrollbar { width: 8px; }
+.docs__side::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+
+.docs-nav__group { margin-bottom: 26px; }
+.docs-nav__h {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent-hi);
+  margin-bottom: 10px;
+}
+.docs-nav__list { display: flex; flex-direction: column; gap: 2px; }
+.docs-nav__list a {
+  display: block;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14.5px;
+  color: var(--text-muted);
+  border-left: 2px solid transparent;
+  transition: color .18s var(--ease), background .18s var(--ease);
+}
+.docs-nav__list a:hover { color: var(--text); background: var(--surface); }
+.docs-nav__list a.is-active {
+  color: var(--text-strong);
+  background: var(--surface);
+  border-left-color: var(--accent);
+}
+
+/* ---------- content column ---------- */
+.docs__main { min-width: 0; }
+.docs__lede { max-width: 760px; margin-bottom: 48px; }
+.docs__lede .eyebrow { margin-bottom: 14px; }
+.docs__lede h1 {
+  font-size: var(--fs-h2);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--text-strong);
+}
+.docs__lede p { margin-top: 18px; font-size: var(--fs-lead); color: var(--text-muted); }
+
+.doc-section { padding-top: 24px; margin-bottom: 52px; scroll-margin-top: calc(var(--nav-h) + 24px); }
+.doc-section > h2 {
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.doc-section > h3 {
+  font-size: 18px;
+  color: var(--text);
+  margin-top: 32px;
+  margin-bottom: 10px;
+}
+.doc-section p { margin-top: 14px; color: var(--text); line-height: 1.7; max-width: 760px; }
+.doc-section p.muted { color: var(--text-muted); }
+.doc-section a.link { color: var(--accent-hi); }
+.doc-section a.link:hover { text-decoration: underline; }
+
+.doc-section ul.doc-list { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
+.doc-section ul.doc-list li {
+  position: relative;
+  padding-left: 22px;
+  color: var(--text);
+  line-height: 1.6;
+}
+.doc-section ul.doc-list li::before {
+  content: "";
+  position: absolute;
+  left: 4px; top: 10px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.doc-section code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1px 6px;
+  color: var(--accent-hi);
+}
+
+/* code block (reuses .codeblock look from styles.css but self-contained) */
+.doc-code {
+  margin-top: 18px;
+  position: relative;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  overflow-x: auto;
+  max-width: 760px;
+}
+.doc-code pre { margin: 0; }
+.doc-code code {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--text);
+  background: none;
+  border: 0;
+  padding: 0;
+  white-space: pre;
+}
+.doc-code .c-prompt { color: var(--accent-hi); }
+.doc-code .c-dim { color: var(--text-muted); }
+.doc-code .c-ok { color: var(--ok); }
+
+/* command reference table */
+.doc-table-wrap { margin-top: 20px; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); max-width: 760px; }
+table.doc-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+table.doc-table th, table.doc-table td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.doc-table thead th { color: var(--text-muted); font-weight: 600; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; }
+table.doc-table tbody tr:last-child td { border-bottom: 0; }
+table.doc-table td:first-child { white-space: nowrap; }
+table.doc-table td code { background: var(--surface); }
+
+/* callout */
+.doc-callout {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  padding: 16px 18px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  max-width: 760px;
+}
+.doc-callout svg { flex: none; color: var(--accent-hi); margin-top: 2px; }
+.doc-callout p { margin-top: 0; font-size: 14.5px; color: var(--text); }
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .docs { grid-template-columns: 1fr; gap: 8px; padding-top: calc(var(--nav-h) + 24px); }
+  .docs__side {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .docs-nav { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 24px; }
+  .docs-nav__group { margin-bottom: 12px; }
+}

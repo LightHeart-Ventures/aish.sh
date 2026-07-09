@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0E0B16" />
+  <title>Configuration — aish, the AI-native shell</title>
+  <meta name="description" content="aish configuration: environment variables, launch flags, model selection, coordinator tuning, and integration setup." />
+
+  <meta property="og:title" content="Configuration — aish Docs" />
+  <meta property="og:description" content="Complete configuration reference for aish: env vars, launch flags, model tuning, workers, and integrations." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="docs.css" />
+</head>
+<body>
+  <!-- ===================== NAV ===================== -->
+  <header class="nav is-scrolled" id="nav">
+    <div class="nav__inner">
+      <a class="brand" href="index.html#top" aria-label="aish home">
+        <svg class="brand__mark" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="1.5" y="3.5" width="21" height="17" rx="4.5" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M6 9.5l3 2.5-3 2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12.5 15h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <span class="brand__name">aish</span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="index.html#problem">Why</a>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#compare">Compare</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="docs.html">Docs</a>
+      </nav>
+
+      <div class="nav__cta">
+        <a class="btn btn--ghost" href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5A10.5 10.5 0 0 0 1.5 12a10.5 10.5 0 0 0 7.18 9.96c.53.1.72-.23.72-.5v-1.9c-2.92.64-3.54-1.25-3.54-1.25-.48-1.22-1.17-1.54-1.17-1.54-.95-.65.07-.64.07-.64 1.06.08 1.62 1.09 1.62 1.09.94 1.6 2.46 1.14 3.06.87.1-.68.37-1.14.67-1.4-2.33-.27-4.78-1.17-4.78-5.2 0-1.15.41-2.08 1.08-2.82-.11-.27-.47-1.34.1-2.78 0 0 .88-.28 2.88 1.07a9.9 9.9 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.44.21 2.51.1 2.78.68.74 1.08 1.67 1.08 2.82 0 4.04-2.46 4.92-4.8 5.18.38.33.71.97.71 1.96v2.9c0 .28.19.61.73.5A10.5 10.5 0 0 0 22.5 12 10.5 10.5 0 0 0 12 1.5Z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a class="btn btn--primary" href="index.html#install">
+          <span class="btn__label">Install</span>
+          <svg class="btn__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== DOCS ===================== -->
+  <main class="docs" id="top">
+    <!-- sidebar -->
+    <aside class="docs__side">
+      <nav class="docs-nav" aria-label="Documentation">
+        <div class="docs-nav__group">
+          <p class="docs-nav__h">Getting started</p>
+          <div class="docs-nav__list">
+            <a href="docs.html#install">Install</a>
+            <a href="docs.html#first-command">Your first command</a>
+            <a href="docs.html#requirements">Requirements</a>
+          </div>
+        </div>
+        <div class="docs-nav__group">
+          <p class="docs-nav__h">Concepts</p>
+          <div class="docs-nav__list">
+            <a href="docs.html#how-it-works">How aish works</a>
+            <a href="docs.html#sessions">Sessions &amp; state</a>
+            <a href="docs.html#mcp">MCP tools</a>
+            <a href="docs.html#skills">Skills</a>
+            <a href="docs.html#agents">Agents &amp; coordinators</a>
+            <a href="docs.html#backends">Backends</a>
+          </div>
+        </div>
+        <div class="docs-nav__group">
+          <p class="docs-nav__h">Guides</p>
+          <div class="docs-nav__list">
+            <a href="getting-started.html">Getting started</a>
+            <a href="architecture.html">Architecture</a>
+            <a href="whats-new.html">What's new</a>
+          </div>
+        </div>
+        <div class="docs-nav__group">
+          <p class="docs-nav__h">Reference</p>
+          <div class="docs-nav__list">
+            <a href="commands.html">Slash commands</a>
+            <a href="configuration.html" aria-current="page">Configuration</a>
+          </div>
+        </div>
+        <div class="docs-nav__group">
+          <p class="docs-nav__h">Help</p>
+          <div class="docs-nav__list">
+            <a href="docs.html#troubleshooting">Troubleshooting</a>
+            <a href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">GitHub&nbsp;↗</a>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- content -->
+    <div class="docs__main">
+      <div class="docs__lede">
+        <p class="eyebrow">Reference</p>
+        <h1>Configuration &amp; environment variables.</h1>
+      </div>
+
+      <section class="doc-section">
+        <h2>Required</h2>
+        <p><code>ANTHROPIC_API_KEY</code> — Claude API key. Required for the default <code>claude</code> backend. Get it free at <a class="link" href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>.</p>
+      </section>
+
+      <section class="doc-section">
+        <h2>Launch flags</h2>
+        <p>Set at launch, equivalent to matching <code>:command</code> shortcuts:</p>
+        <div class="doc-code"><pre><code><span class="c-prompt">$</span> aish --backend local      <span class="c-dim"># offline inference (Qwen3-1.7B, ~4 GB)</span>
+<span class="c-prompt">$</span> aish --mode paranoid      <span class="c-dim"># confirm every tool call</span>
+<span class="c-prompt">$</span> aish --mode careful       <span class="c-dim"># confirm writes only</span>
+<span class="c-prompt">$</span> aish -c "who is alan turing"   <span class="c-dim"># one-shot command, then exit</span></code></pre></div>
+        <p><code>:mode &lt;paranoid|careful|normal|yolo&gt;</code> is the graded safety gate — <code>normal</code> (default) confirms only write/create/delete; <code>paranoid</code> confirms everything; <code>yolo</code> confirms nothing. MCP tools honor the spec's <code>readOnlyHint</code>.</p>
+      </section>
+
+      <section class="doc-section">
+        <h2>Model &amp; backend</h2>
+        <ul class="doc-list">
+          <li><code>AISH_MODEL</code> — Default Claude model (e.g. <code>claude-opus-4-6</code>). Overridable live with <code>:model</code>.</li>
+          <li><code>AISH_LOCAL</code> — Select the local inference backend.</li>
+          <li><code>AISH_LOCAL_MODEL</code> / <code>AISH_LOCAL_MODEL_ID</code> — Choose the local GGUF model (e.g. <code>Qwen/Qwen3-4B-GGUF</code>) — no rebuild needed.</li>
+          <li><code>AISH_LOCAL_MODEL_PATH</code> — Path to a local GGUF file instead of the HF cache.</li>
+          <li><code>AISH_LOCAL_N_GPU_LAYERS</code> — Number of model layers to offload to GPU.</li>
+          <li><code>AISH_HF_BASE</code> / <code>AISH_HF_REVISION</code> — Hugging Face download base URL / model revision.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section">
+        <h2>Coordinators &amp; fan-out</h2>
+        <ul class="doc-list">
+          <li><code>AISH_COORDINATOR</code> — Marks the process as a background coordinator (set internally).</li>
+          <li><code>AISH_COORDINATOR_MAX_ROUNDS</code> — Cap on coordinator loop rounds (loop-guard).</li>
+          <li><code>AISH_COORDINATOR_MAX_FAILED_ATTEMPTS</code> — Failed-attempt ceiling before abandonment.</li>
+          <li><code>AISH_COORDINATOR_FAILED_KEEP</code> — Retain failed coordinator state for inspection.</li>
+          <li><code>AISH_COORDINATOR_FAILED_MAX_AGE_DAYS</code> — Age-out window for kept failed coordinators.</li>
+          <li><code>AISH_AUTO_RESUME_ON_CHILD_COMPLETE</code> — Wake parent session when fanned-out children finish.</li>
+          <li><code>AISH_FANOUT_TIER</code> — Latency tier for fan-out (<code>auto</code> | <code>interactive</code> | <code>batch</code>).</li>
+        </ul>
+      </section>
+
+      <section class="doc-section">
+        <h2>Workers &amp; worktrees</h2>
+        <ul class="doc-list">
+          <li><code>AISH_WORKER_BELL</code> — Ring terminal bell when a background job finishes (on by default; set to <code>0</code>/<code>off</code> to disable).</li>
+          <li><code>AISH_WORKER_BELL_CMD</code> — Replace beep with a custom sound command (e.g. <code>paplay …/complete.oga</code>).</li>
+          <li><code>AISH_WORKER_RUNTIME</code> — Worker execution runtime (subprocess vs container).</li>
+          <li><code>AISH_WORKER_CPUS</code> / <code>AISH_WORKER_CPU_SECS</code> — CPU count / CPU-time cap for a worker.</li>
+          <li><code>AISH_WORKER_MEM_MB</code> — Memory ceiling (MB) for a worker.</li>
+          <li><code>AISH_WORKER_PIDS</code> — PID limit for a worker.</li>
+          <li><code>AISH_WORKER_NETWORK</code> — Worker network policy.</li>
+          <li><code>AISH_WORKER_STATE_DIR</code> — Where worker state is persisted.</li>
+          <li><code>AISH_WORKER_RETENTION_DAYS</code> — How long finished worker records are kept.</li>
+          <li><code>AISH_WORKER_TRANSCRIPT_CAP</code> — Cap on captured worker transcript size.</li>
+          <li><code>AISH_DRAIN_TIMEOUT</code> — Grace period to drain in-flight work on shutdown.</li>
+          <li><code>AISH_WORKTREE_DIR</code> — Base directory for coordinator git worktrees.</li>
+          <li><code>AISH_WORKTREE_MAX_AGE_DAYS</code> — Age-out window for stale worktrees.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section">
+        <h2>Alerts</h2>
+        <ul class="doc-list">
+          <li><code>AISH_ALERT_BELL</code> — Ring the bell when an operator alert (<code>:alert</code>) fires.</li>
+          <li><code>AISH_ALERT_BELL_CMD</code> — Custom sound command for alert fires.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section">
+        <h2>Telemetry &amp; reasoning</h2>
+        <p class="muted">All best-effort; none change behavior.</p>
+        <ul class="doc-list">
+          <li><code>AISH_TELEMETRY_BATCH_SIZE</code> — Telemetry event batch size before flush.</li>
+          <li><code>AISH_TELEMETRY_FLUSH_SECS</code> — Max seconds between telemetry flushes.</li>
+          <li><code>AISH_TELEMETRY_CACHE_SECS</code> — Telemetry cache TTL.</li>
+          <li><code>AISH_TELEMETRY_UNBUFFERED</code> — Disable telemetry buffering (flush immediately).</li>
+          <li><code>AISH_REASONING_LOG</code> — Path/toggle for the reasoning-quality JSONL log.</li>
+          <li><code>AISH_REASONING_MEMO</code> — Reasoning-memo store toggle.</li>
+          <li><code>AISH_REASONING_MEMO_FORCE_RESCAN</code> — Force a fresh reasoning-memo rescan.</li>
+          <li><code>AISH_REASONING_ROTATE_MB</code> — JSONL rotation threshold (MB).</li>
+        </ul>
+      </section>
+
+      <section class="doc-section">
+        <h2>Updates</h2>
+        <ul class="doc-list">
+          <li><code>AISH_UPDATE_CHANNEL</code> — Release channel to track (<code>stable</code> / <code>dev</code>).</li>
+          <li><code>AISH_UPDATE_REPO</code> — Override the GitHub repo used by <code>:update</code>.</li>
+          <li><code>AISH_UPDATE_CHECK_TTL</code> — Update-check cache TTL (force a fresh check by lowering it).</li>
+          <li><code>AISH_UPDATE_CHECK_CACHE_PATH</code> — Where the update-check result is cached.</li>
+          <li><code>AISH_RELEASE_TAG</code> — Pin/override the release tag for an update.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section">
+        <h2>Skills &amp; plugins</h2>
+        <ul class="doc-list">
+          <li><code>AISH_SKILL_REGISTRY</code> — Override the skill registry source for <code>:skill add</code>.</li>
+          <li><code>AISH_SKILL_DEBUG</code> — Verbose skill-matching diagnostics.</li>
+          <li><code>AISH_PLUGIN_ID</code> / <code>AISH_PLUGIN_EVENTS</code> — Plugin identity / event subscription (set in plugin dispatch env).</li>
+          <li><code>AISH_IN_HOOK</code> / <code>AISH_EVENT_TYPE</code> — Set inside a lifecycle-hook invocation.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section">
+        <h2>Session, credentials &amp; integrations</h2>
+        <ul class="doc-list">
+          <li><code>AISH_PROFILE</code> — Active credentials profile (looked up in the credentials file).</li>
+          <li><code>AISH_PROFILE_BASE</code> — Base for profile resolution.</li>
+          <li><code>AISH_CREDENTIALS_FILE</code> — Path to the credentials file.</li>
+          <li><code>AISH_BASE</code> — Base directory for aish state (defaults under <code>~/.aish</code>).</li>
+          <li><code>AISH_SESSION_ID</code> — Current session id (set internally).</li>
+          <li><code>AISH_LAUNCH_SESSION_ID</code> / <code>AISH_LAUNCH_SESSION_NAME</code> — Launch session identity.</li>
+          <li><code>AISH_LOGIN_NAME</code> — Login-shell identity override.</li>
+          <li><code>AISH_VERSION_STRING</code> — Overrides the reported version string.</li>
+          <li><code>AISH_TENANT_ID</code> — Tenant scope for MCP/enterprise integrations.</li>
+          <li><code>AISH_GITHUB_API_BASE</code> / <code>AISH_GITHUB_RAW_BASE</code> — Override GitHub API / raw hosts.</li>
+          <li><code>AISH_MCPMARKET_BASE</code> — Base URL for the MCP marketplace.</li>
+          <li><code>AISH_ENV_INJECTION_DISABLED</code> — Disable env injection into tool subprocesses.</li>
+          <li><code>AISH_STARTUP_DIGEST</code> / <code>AISH_TIME_STARTUP</code> — Startup digest / timing instrumentation toggles.</li>
+        </ul>
+      </section>
+
+      <div class="doc-callout">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16v-5m0-3.5h.01M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p><strong>Note:</strong> <code>AISH_PROFILE_&lt;NAME&gt;_*</code> entries you may see in tests/docs (e.g. <code>AISH_PROFILE_ACME_REGION</code>) are <em>illustrative profile keys</em>, not real global variables — they demonstrate the <code>${profile:KEY}</code> credential-reference pattern.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="section__content">
+      <div class="footer__brand">
+        <a class="brand" href="index.html#top" aria-label="aish home">
+          <svg class="brand__mark" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="1.5" y="3.5" width="21" height="17" rx="4.5" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M6 9.5l3 2.5-3 2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12.5 15h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span class="brand__name">aish</span>
+        </a>
+        <p class="footer__tag">The AI-native shell. No bash, just intent.</p>
+      </div>
+
+      <nav class="footer__cols" aria-label="Footer">
+        <div class="footer__col">
+          <p class="footer__h">Product</p>
+          <a href="index.html#features">Features</a>
+          <a href="index.html#compare">Compare</a>
+          <a href="index.html#roadmap">Roadmap</a>
+        </div>
+        <div class="footer__col">
+          <p class="footer__h">Resources</p>
+          <a href="docs.html">Docs</a>
+          <a href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/LightHeart-Ventures/aish/issues" target="_blank" rel="noopener">Issues</a>
+        </div>
+        <div class="footer__col">
+          <p class="footer__h">Project</p>
+          <a href="index.html#install">Install</a>
+          <a href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">Contribute</a>
+        </div>
+      </nav>
+    </div>
+    <div class="section__content footer__bar">
+      <p>&copy; <span id="yr">2025</span> LightHeart Ventures. Apache 2.0.</p>
+    </div>
+  </footer>
+
+  <script src="docs.js"></script>
+</body>
+</html>

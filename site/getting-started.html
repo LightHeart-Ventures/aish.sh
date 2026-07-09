@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0E0B16" />
+  <title>Getting Started — aish, the AI-native shell</title>
+  <meta name="description" content="Install and get started with aish, the AI-native shell. Prerequisites, installation steps, your first command, offline mode, and key concepts." />
+
+  <meta property="og:title" content="Getting Started — aish Docs" />
+  <meta property="og:description" content="Install and get started with aish in 5 minutes. Prerequisites, installation, your first command, offline mode." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="docs.css" />
+</head>
+<body>
+  <!-- ===================== NAV ===================== -->
+  <header class="nav is-scrolled" id="nav">
+    <div class="nav__inner">
+      <a class="brand" href="index.html#top" aria-label="aish home">
+        <svg class="brand__mark" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="1.5" y="3.5" width="21" height="17" rx="4.5" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M6 9.5l3 2.5-3 2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12.5 15h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <span class="brand__name">aish</span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="index.html#problem">Why</a>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#compare">Compare</a>
+        <a href="index.html#roadmap">Roadmap</a>
+        <a href="docs.html">Docs</a>
+      </nav>
+
+      <div class="nav__cta">
+        <a class="btn btn--ghost" href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5A10.5 10.5 0 0 0 1.5 12a10.5 10.5 0 0 0 7.18 9.96c.53.1.72-.23.72-.5v-1.9c-2.92.64-3.54-1.25-3.54-1.25-.48-1.22-1.17-1.54-1.17-1.54-.95-.65.07-.64.07-.64 1.06.08 1.62 1.09 1.62 1.09.94 1.6 2.46 1.14 3.06.87.1-.68.37-1.14.67-1.4-2.33-.27-4.78-1.17-4.78-5.2 0-1.15.41-2.08 1.08-2.82-.11-.27-.47-1.34.1-2.78 0 0 .88-.28 2.88 1.07a9.9 9.9 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.44.21 2.51.1 2.78.68.74 1.08 1.67 1.08 2.82 0 4.04-2.46 4.92-4.8 5.18.38.33.71.97.71 1.96v2.9c0 .28.19.61.73.5A10.5 10.5 0 0 0 22.5 12 10.5 10.5 0 0 0 12 1.5Z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a class="btn btn--primary" href="index.html#install">
+          <span class="btn__label">Install</span>
+          <svg class="btn__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== DOCS ===================== -->
+  <main class="docs" id="top">
+    <!-- sidebar -->
+    <aside class="docs__side">
+      <nav class="docs-nav" aria-label="Documentation">
+        <div class="docs-nav__group">
+          <p class="docs-nav__h">Getting started</p>
+          <div class="docs-nav__list">
+            <a href="docs.html#install">Install</a>
+            <a href="docs.html#first-command">Your first command</a>
+            <a href="docs.html#requirements">Requirements</a>
+          </div>
+        </div>
+        <div class="docs-nav__group">
+          <p class="docs-nav__h">Concepts</p>
+          <div class="docs-nav__list">
+            <a href="docs.html#how-it-works">How aish works</a>
+            <a href="docs.html#sessions">Sessions &amp; state</a>
+            <a href="docs.html#mcp">MCP tools</a>
+            <a href="docs.html#skills">Skills</a>
+            <a href="docs.html#agents">Agents &amp; coordinators</a>
+            <a href="docs.html#backends">Backends</a>
+          </div>
+        </div>
+        <div class="docs-nav__group">
+          <p class="docs-nav__h">Guides</p>
+          <div class="docs-nav__list">
+            <a href="getting-started.html" aria-current="page">Getting started</a>
+            <a href="architecture.html">Architecture</a>
+            <a href="whats-new.html">What's new</a>
+          </div>
+        </div>
+        <div class="docs-nav__group">
+          <p class="docs-nav__h">Reference</p>
+          <div class="docs-nav__list">
+            <a href="commands.html">Slash commands</a>
+            <a href="configuration.html">Configuration</a>
+          </div>
+        </div>
+        <div class="docs-nav__group">
+          <p class="docs-nav__h">Help</p>
+          <div class="docs-nav__list">
+            <a href="docs.html#troubleshooting">Troubleshooting</a>
+            <a href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">GitHub&nbsp;↗</a>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- content -->
+    <div class="docs__main">
+      <div class="docs__lede">
+        <p class="eyebrow">Getting Started</p>
+        <h1>Install aish in 5 minutes.</h1>
+      </div>
+
+      <section class="doc-section">
+        <h2>Prerequisites</h2>
+        <p>aish is written in Rust and runs on Linux and macOS. You'll need:</p>
+        <ul class="doc-list">
+          <li>An <code>ANTHROPIC_API_KEY</code> for the default Claude backend — free at <a class="link" href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>. (Or run fully offline with <code>--backend local</code>.)</li>
+          <li>A <strong>Rust toolchain</strong> (<code>rustup</code>) if building from source.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section">
+        <h2>Installation</h2>
+        <div class="doc-code"><pre><code><span class="c-prompt">$</span> git clone https://github.com/LightHeart-Ventures/aish
+<span class="c-prompt">$</span> cd aish
+<span class="c-prompt">$</span> make install        <span class="c-dim"># builds --release and installs the binary</span></code></pre></div>
+        <p><strong>Without make:</strong></p>
+        <div class="doc-code"><pre><code><span class="c-prompt">$</span> cargo build --release   <span class="c-dim"># binary at ./target/release/aish</span></code></pre></div>
+        <p>Then configure your API key (add to your shell profile to persist):</p>
+        <div class="doc-code"><pre><code><span class="c-prompt">$</span> export ANTHROPIC_API_KEY=sk-ant-...</code></pre></div>
+      </section>
+
+      <section class="doc-section">
+        <h2>Your First Command</h2>
+        <p>Start the interactive REPL:</p>
+        <div class="doc-code"><pre><code><span class="c-prompt">$</span> aish</code></pre></div>
+        <p>Type a natural-language intent:</p>
+        <div class="doc-code"><pre><code><span class="c-prompt">&gt;</span> list the top 10 files by size in /home
+<span class="c-dim">→ scanning /home · sorting by size · top 10</span>
+<span class="c-ok">✓ done — 10 files, largest 2.4 GB (backup.tar.zst)</span></code></pre></div>
+        <p class="muted">aish classifies the line, invokes tools as needed, and streams results. Routine commands (<code>git status</code>, <code>ls</code>, anything on your <code>PATH</code>) run directly — no model, no latency. Only genuine intent engages the agent.</p>
+      </section>
+
+      <section class="doc-section">
+        <h2>Offline Mode</h2>
+        <p>No API key? Run the built-in local backend (first launch downloads a hardware-appropriate GGUF model, ~4 GB):</p>
+        <div class="doc-code"><pre><code><span class="c-prompt">$</span> aish --backend local</code></pre></div>
+      </section>
+
+      <section class="doc-section">
+        <h2>Key Concepts</h2>
+        <ul class="doc-list">
+          <li><strong>Intent</strong> — natural language → aish parses and executes.</li>
+          <li><strong>Routing</strong> — <code>:command</code> / direct-exec / agent / <code>!</code> · <code>?</code> escape hatches.</li>
+          <li><strong>Tools &amp; MCP</strong> — file ops, git, and remote capabilities exposed via MCP servers.</li>
+          <li><strong>Coordinators</strong> — background agents (<code>:dispatch</code>) that run deferrable work with the full toolset and survive restarts.</li>
+          <li><strong>Skills</strong> — expert playbooks on disk (<code>:skill</code>) the agent reads and follows.</li>
+          <li><strong>Goals &amp; Memory</strong> — durable, cross-session objectives and facts in <code>~/.aish</code>.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section">
+        <h2>Next Steps</h2>
+        <ul class="doc-list">
+          <li><a class="link" href="commands.html">Command Reference</a> — all slash commands and escape hatches.</li>
+          <li><a class="link" href="configuration.html">Configuration</a> — backends, API keys, session defaults.</li>
+          <li><a class="link" href="architecture.html">Architecture</a> — how aish works under the hood.</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="section__content">
+      <div class="footer__brand">
+        <a class="brand" href="index.html#top" aria-label="aish home">
+          <svg class="brand__mark" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="1.5" y="3.5" width="21" height="17" rx="4.5" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M6 9.5l3 2.5-3 2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12.5 15h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span class="brand__name">aish</span>
+        </a>
+        <p class="footer__tag">The AI-native shell. No bash, just intent.</p>
+      </div>
+
+      <nav class="footer__cols" aria-label="Footer">
+        <div class="footer__col">
+          <p class="footer__h">Product</p>
+          <a href="index.html#features">Features</a>
+          <a href="index.html#compare">Compare</a>
+          <a href="index.html#roadmap">Roadmap</a>
+        </div>
+        <div class="footer__col">
+          <p class="footer__h">Resources</p>
+          <a href="docs.html">Docs</a>
+          <a href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/LightHeart-Ventures/aish/issues" target="_blank" rel="noopener">Issues</a>
+        </div>
+        <div class="footer__col">
+          <p class="footer__h">Project</p>
+          <a href="index.html#install">Install</a>
+          <a href="https://github.com/LightHeart-Ventures/aish" target="_blank" rel="noopener">Contribute</a>
+        </div>
+      </nav>
+    </div>
+    <div class="section__content footer__bar">
+      <p>&copy; <span id="yr">2025</span> LightHeart Ventures. Apache 2.0.</p>
+    </div>
+  </footer>
+
+  <script src="docs.js"></script>
+</body>
+</html>

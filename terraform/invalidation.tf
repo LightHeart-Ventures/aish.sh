@@ -1,6 +1,7 @@
 # ---------------------------------------------------------------------------
 # Invalidate CloudFront after the uploaded objects change. Requires the AWS CLI
-# on the apply host (the same one running `terraform apply`).
+# on the apply host (the same one running `terraform apply`; present on the
+# GitHub Actions ubuntu runner and on a dev laptop).
 # ---------------------------------------------------------------------------
 resource "null_resource" "invalidate" {
   count = var.create_invalidation ? 1 : 0
@@ -11,6 +12,8 @@ resource "null_resource" "invalidate" {
   }
 
   provisioner "local-exec" {
-    command = "aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.site.id} --paths '/*' --profile ${var.aws_profile}"
+    # Only pass --profile when one is set (local dev). In CI aws_profile is blank
+    # and the AWS CLI uses the OIDC credential chain from the environment.
+    command = "aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.site.id} --paths '/*'${var.aws_profile != "" ? " --profile ${var.aws_profile}" : ""}"
   }
 }

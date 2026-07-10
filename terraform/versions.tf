@@ -16,7 +16,7 @@ terraform {
   # One-time bootstrap + migration of existing local state is documented in
   # README.md § "CI/CD". The state bucket must exist before `terraform init`.
   backend "s3" {
-    bucket       = "hohertz-tfstate"
+    bucket       = "hohertz-tfstate-691716211469"
     key          = "aish.sh/site/terraform.tfstate"
     region       = "us-east-1"
     encrypt      = true

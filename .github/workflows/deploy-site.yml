@@ -28,9 +28,8 @@ on:
       - ".github/workflows/deploy-site.yml"
   workflow_dispatch:
 
-# Least-privilege token: id-token for OIDC role assumption, contents:read for checkout.
+# Least-privilege token: contents:read for checkout.
 permissions:
-  id-token: write
   contents: read
 
 # Never let two deploys race on the same Terraform state.
@@ -42,13 +41,15 @@ env:
   AWS_REGION: us-east-1
   TF_IN_AUTOMATION: "true"
   # Blank the named profile at the highest-precedence layer (-var on the plan/
-  # apply commands below) so the AWS provider + CLI use the OIDC credential
-  # chain from configure-aws-credentials instead of a ~/.aws/credentials
+  # apply commands below) so the AWS provider + CLI use the credential env vars
+  # (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY) instead of a ~/.aws/credentials
   # profile. NOTE: a TF_VAR_ env var will NOT work here — terraform.tfvars
   # (aws_profile = "hohertz") overrides environment variables in Terraform's
   # precedence order; only a command-line -var beats terraform.tfvars.
   TF_CLI_ARGS_plan: -var=aws_profile=
   TF_CLI_ARGS_apply: -var=aws_profile=
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 jobs:
   terraform:
@@ -61,16 +62,16 @@ jobs:
         working-directory: terraform
     # Surface the secret as a job env var so steps can gate on its presence —
     # the `secrets` context is not available in step-level `if:` expressions,
-    # but `env` is. Empty until the operator completes the OIDC bootstrap.
+    # but `env` is. Empty until the operator sets the AWS credentials.
     env:
-      AWS_ROLE: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+      AWS_CREDS_SET: ${{ secrets.AWS_ACCESS_KEY_ID != '' }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v3.1.2
         with:
           terraform_version: "~> 1.10"
 
@@ -85,27 +86,20 @@ jobs:
           terraform init -input=false -backend=false
           terraform validate -no-color
 
-      # ---- AWS-dependent steps: only once AWS_DEPLOY_ROLE_ARN is configured ----
-      - name: Configure AWS credentials (OIDC)
-        if: env.AWS_ROLE != ''
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ env.AWS_ROLE }}
-          aws-region: ${{ env.AWS_REGION }}
-
+      # ---- AWS-dependent steps: only once AWS credentials are configured ----
       - name: Terraform init (S3 backend)
-        if: env.AWS_ROLE != ''
+        if: env.AWS_CREDS_SET == 'true'
         run: terraform init -input=false -reconfigure
 
       - name: Terraform plan
-        if: env.AWS_ROLE != ''
+        if: env.AWS_CREDS_SET == 'true'
         run: terraform plan -input=false -no-color
 
       - name: Terraform apply
-        if: env.AWS_ROLE != '' && github.event_name != 'pull_request'
+        if: env.AWS_CREDS_SET == 'true' && github.event_name != 'pull_request'
         run: terraform apply -input=false -auto-approve -no-color
 
-      - name: Bootstrap reminder (AWS role not configured)
-        if: env.AWS_ROLE == ''
+      - name: Bootstrap reminder (AWS credentials not configured)
+        if: env.AWS_CREDS_SET != 'true'
         run: |
-          echo "::notice title=Terraform deploy not yet active::Ran fmt + validate only. Set repo secret AWS_DEPLOY_ROLE_ARN and create the S3 state bucket (see terraform/README.md § CI/CD) to enable plan/apply."
+          echo "::notice title=Terraform deploy not yet active::Ran fmt + validate only. Set repo secrets AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to enable plan/apply."

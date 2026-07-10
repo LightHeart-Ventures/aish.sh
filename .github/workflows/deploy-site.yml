@@ -1,0 +1,90 @@
+name: Deploy site
+
+# Deploys the static marketing site in ./site to AWS (S3 + CloudFront) via the
+# Terraform config in ./terraform.
+#
+#   pull_request  -> terraform fmt/validate/plan only (no changes applied)
+#   push to main  -> plan + apply (deploy) + CloudFront invalidation
+#   workflow_dispatch -> manual plan + apply
+#
+# AWS auth is via GitHub OIDC (no long-lived keys). Configure once (see
+# terraform/README.md § "CI/CD"):
+#   - repo secret  AWS_DEPLOY_ROLE_ARN : IAM role ARN trusting this repo's OIDC
+#   - remote state : S3 bucket `hohertz-tfstate` (backend in terraform/versions.tf)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "terraform/**"
+      - ".github/workflows/deploy-site.yml"
+  pull_request:
+    paths:
+      - "site/**"
+      - "terraform/**"
+      - ".github/workflows/deploy-site.yml"
+  workflow_dispatch:
+
+# Least-privilege token: id-token for OIDC role assumption, contents:read for checkout.
+permissions:
+  id-token: write
+  contents: read
+
+# Never let two deploys race on the same Terraform state.
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  TF_IN_AUTOMATION: "true"
+  # Blank the named profile at the highest-precedence layer (-var on the plan/
+  # apply commands below) so the AWS provider + CLI use the OIDC credential
+  # chain from configure-aws-credentials instead of a ~/.aws/credentials
+  # profile. NOTE: a TF_VAR_ env var will NOT work here — terraform.tfvars
+  # (aws_profile = "hohertz") overrides environment variables in Terraform's
+  # precedence order; only a command-line -var beats terraform.tfvars.
+  TF_CLI_ARGS_plan: -var=aws_profile=
+  TF_CLI_ARGS_apply: -var=aws_profile=
+
+jobs:
+  terraform:
+    name: terraform ${{ github.event_name == 'pull_request' && 'plan' || 'apply' }}
+    runs-on: ubuntu-latest
+    # Attach a protected environment on apply so approvals/secrets can be scoped.
+    environment: ${{ (github.event_name != 'pull_request') && 'production' || '' }}
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~> 1.10"
+
+      - name: Terraform fmt (check)
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        run: terraform validate -no-color
+
+      - name: Terraform plan
+        run: terraform plan -input=false -no-color
+
+      - name: Terraform apply
+        if: github.event_name != 'pull_request'
+        run: terraform apply -input=false -auto-approve -no-color

@@ -91,6 +91,10 @@ jobs:
         if: env.AWS_CREDS_SET == 'true'
         run: terraform init -input=false -reconfigure
 
+      - name: Refresh Terraform state
+        if: env.AWS_CREDS_SET == 'true'
+        run: terraform refresh -input=false -no-color || true
+
       - name: Terraform plan
         if: env.AWS_CREDS_SET == 'true'
         run: terraform plan -input=false -no-color

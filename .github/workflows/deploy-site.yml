@@ -91,9 +91,15 @@ jobs:
         if: env.AWS_CREDS_SET == 'true'
         run: terraform init -input=false -reconfigure
 
-      - name: Refresh Terraform state
+      - name: Import existing AWS resources (if needed)
         if: env.AWS_CREDS_SET == 'true'
-        run: terraform refresh -input=false -no-color || true
+        run: |
+          # Import S3 bucket if it exists but isn't tracked by Terraform
+          aws s3api head-bucket --bucket hohertz-aish-site-691716211469 2>/dev/null && \
+            terraform import -input=false aws_s3_bucket.site hohertz-aish-site-691716211469 || true
+          
+          # Import CloudFront OAC if it exists
+          terraform import -input=false aws_cloudfront_origin_access_control.site E125TU0OZ206GO || true
 
       - name: Terraform plan
         if: env.AWS_CREDS_SET == 'true'

@@ -1,7 +1,19 @@
 # ---------------------------------------------------------------------------
 # CloudFront — OAC to the private bucket, custom domain, managed policies.
 # ---------------------------------------------------------------------------
+# Data source to reference the existing OAC (created manually or by a prior run).
+# If it doesn't exist yet, this will fail gracefully during plan, and the
+# resource below will be created on the first apply.
+data "aws_cloudfront_origin_access_control" "site" {
+  id = var.oac_id
+}
+
+# Fallback: create the OAC if the data source lookup fails or var.oac_id is empty.
+# To use the data source, set var.oac_id to the existing OAC's ID; otherwise,
+# this resource will be created fresh.
 resource "aws_cloudfront_origin_access_control" "site" {
+  count = var.oac_id == "" ? 1 : 0
+
   name                              = "${local.bucket_name}-oac"
   description                       = "OAC for ${var.domain_name} static site"
   origin_access_control_origin_type = "s3"
@@ -33,7 +45,7 @@ resource "aws_cloudfront_distribution" "site" {
   origin {
     domain_name              = aws_s3_bucket.site.bucket_regional_domain_name
     origin_id                = "s3-${aws_s3_bucket.site.id}"
-    origin_access_control_id = aws_cloudfront_origin_access_control.site.id
+    origin_access_control_id = var.oac_id != "" ? data.aws_cloudfront_origin_access_control.site.id : aws_cloudfront_origin_access_control.site[0].id
   }
 
   default_cache_behavior {

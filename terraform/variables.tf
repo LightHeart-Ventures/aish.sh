@@ -63,6 +63,12 @@ variable "create_invalidation" {
   default     = true
 }
 
+variable "oac_id" {
+  description = "Existing CloudFront Origin Access Control ID. When set, Terraform references the existing OAC instead of creating a new one. This prevents 409 'OriginAccessControlAlreadyExists' errors when re-running apply. Leave empty to create a new OAC."
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
   description = "Tags applied to every resource."
   type        = map(string)

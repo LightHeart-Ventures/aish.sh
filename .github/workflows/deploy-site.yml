@@ -95,9 +95,21 @@ jobs:
         if: env.AWS_CREDS_SET == 'true'
         run: terraform plan -input=false -no-color
 
+      - name: Fetch existing OAC ID (if exists)
+        if: env.AWS_CREDS_SET == 'true' && github.event_name != 'pull_request'
+        id: oac
+        run: |
+          OAC_ID=$(aws cloudfront list-origin-access-controls --query "OriginAccessControlList.Items[?Name=='hohertz-aish-site-691716211469-oac'].Id" --output text 2>/dev/null || echo "")
+          echo "id=${OAC_ID}" >> $GITHUB_OUTPUT
+          if [ -n "${OAC_ID}" ]; then
+            echo "Found existing OAC: ${OAC_ID}"
+          else
+            echo "No existing OAC found; will create a new one"
+          fi
+
       - name: Terraform apply
         if: env.AWS_CREDS_SET == 'true' && github.event_name != 'pull_request'
-        run: terraform apply -input=false -auto-approve -no-color
+        run: terraform apply -input=false -auto-approve -no-color -var="oac_id=${{ steps.oac.outputs.id }}"
 
       - name: Bootstrap reminder (AWS credentials not configured)
         if: env.AWS_CREDS_SET != 'true'

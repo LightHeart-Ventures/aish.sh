@@ -2,8 +2,9 @@ data "aws_caller_identity" "current" {}
 
 locals {
   # Apex + optional www.
-  aliases = var.create_www ? [var.domain_name, "www.${var.domain_name}"] : [var.domain_name]
-  sans    = var.create_www ? ["www.${var.domain_name}"] : []
+  aliases       = var.create_www ? [var.domain_name, "www.${var.domain_name}"] : [var.domain_name]
+  primary_alias = var.domain_name # Used to detect existing CloudFront distributions by CNAME
+  sans          = var.create_www ? ["www.${var.domain_name}"] : []
 
   # NOTE: the `terraform` IAM user's policy (Terraform_New_Accounts) grants s3:*
   # only on `arn:aws:s3:::hohertz-*`, so the bucket name MUST keep the hohertz- prefix.

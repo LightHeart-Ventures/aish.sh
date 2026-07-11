@@ -107,6 +107,23 @@ jobs:
             echo "No existing OAC found; will create a new one"
           fi
 
+      - name: Import existing CloudFront distribution (if exists)
+        if: env.AWS_CREDS_SET == 'true' && github.event_name != 'pull_request'
+        id: import_cf
+        run: |
+          # Query for a CloudFront distribution with our domain as an alias
+          DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?contains(Aliases.Items[], 'aish.sh')].Id" --output text 2>/dev/null | head -1)
+          if [ -n "${DIST_ID}" ]; then
+            echo "Found existing CloudFront distribution: ${DIST_ID}"
+            terraform import -input=false -no-color aws_cloudfront_distribution.site "${DIST_ID}"
+            echo "imported=true" >> $GITHUB_OUTPUT
+            echo "Refreshing state after import to persist to S3 backend..."
+            terraform refresh -input=false -no-color
+          else
+            echo "No existing CloudFront distribution found"
+            echo "imported=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Terraform apply
         if: env.AWS_CREDS_SET == 'true' && github.event_name != 'pull_request'
         run: terraform apply -input=false -auto-approve -no-color -var="oac_id=${{ steps.oac.outputs.id }}"

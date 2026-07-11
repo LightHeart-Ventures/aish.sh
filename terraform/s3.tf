@@ -6,11 +6,6 @@ resource "aws_s3_bucket" "site" {
 
   lifecycle {
     prevent_destroy = false
-    # Ignore bucket ACL changes from external tooling
-    ignore_changes = [
-      acl,
-      grant,
-    ]
   }
 }
 

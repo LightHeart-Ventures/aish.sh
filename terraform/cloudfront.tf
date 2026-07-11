@@ -1,6 +1,7 @@
 # ---------------------------------------------------------------------------
 # CloudFront — OAC to the private bucket, custom domain, managed policies.
 # ---------------------------------------------------------------------------
+
 # Data source to reference the existing OAC (created manually or by a prior run).
 # Only evaluated when oac_id is provided; otherwise the resource below creates a new one.
 data "aws_cloudfront_origin_access_control" "site" {
@@ -18,11 +19,6 @@ resource "aws_cloudfront_origin_access_control" "site" {
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
-
-  lifecycle {
-    ignore_changes = []
-    # Allow Terraform to manage OAC lifecycle without recreation on name changes
-  }
 }
 
 data "aws_cloudfront_cache_policy" "optimized" {
@@ -33,7 +29,9 @@ data "aws_cloudfront_response_headers_policy" "security" {
   name = "Managed-SecurityHeadersPolicy"
 }
 
+# CloudFront distribution for the static site
 resource "aws_cloudfront_distribution" "site" {
+
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "${var.domain_name} marketing site"

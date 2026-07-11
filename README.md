@@ -7,7 +7,7 @@ aish is a no-bash shell built entirely from AI orchestration: instead of a POSIX
 ## Contents
 
 - **Marketing**: positioning, messaging, case studies, pricing strategy
-- **Documentation**: user guides, tutorials, architecture deep-dives
+- **Documentation**: user guides, tutorials, architecture deep-dives, plugin system guide
 - **Product**: roadmap, feature proposals, competitor analysis
 - **Community**: contributor guidelines, engagement strategy
 - **Design**: wireframes, style guides, brand identity

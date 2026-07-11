@@ -62,9 +62,17 @@ Anthropic Batches API.
 **Skills** are expert playbooks on disk (`~/.aish/skills/<name>/SKILL.md`). Using
 one means reading its `SKILL.md` and carrying out its steps with normal tools —
 there is no separate runtime. `:skill` adds/searches/lists/removes them.
-**Plugins** (`~/.aish/plugins/<id>/`) contribute additional skills (and, via
-`plugin.json`, lifecycle hooks) into the same catalog; installed skills win on a
-name collision.
+
+**Plugins** (`~/.aish/plugins/<id>/`) extend aish without modifying the binary.
+Each plugin declares a `plugin.json` that contributes:
+- **Skills** — additional expert playbooks merged into the catalog
+- **Lifecycle hooks** — observers/gates that run before/after tool calls
+- **MCP servers** — additional Model Context Protocol integrations
+
+Installed skills take precedence over plugin skills on name collision. Plugins are
+discovered on startup and can be installed from local directories or GitHub.
+
+*For full plugin documentation, architecture, and examples, see [Plugin System](./plugins.md).*
 
 ## Durable state & memory
 

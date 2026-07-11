@@ -3,6 +3,15 @@
 # ---------------------------------------------------------------------------
 resource "aws_s3_bucket" "site" {
   bucket = local.bucket_name
+
+  lifecycle {
+    prevent_destroy = false
+    # Ignore bucket ACL changes from external tooling
+    ignore_changes = [
+      acl,
+      grant,
+    ]
+  }
 }
 
 resource "aws_s3_bucket_ownership_controls" "site" {

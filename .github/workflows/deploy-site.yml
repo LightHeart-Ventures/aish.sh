@@ -94,12 +94,18 @@ jobs:
       - name: Import existing AWS resources (if needed)
         if: env.AWS_CREDS_SET == 'true'
         run: |
-          # Import S3 bucket if it exists but isn't tracked by Terraform
-          aws s3api head-bucket --bucket hohertz-aish-site-691716211469 2>/dev/null && \
-            terraform import -input=false aws_s3_bucket.site hohertz-aish-site-691716211469 || true
+          set +e  # Imports may fail if resources already in state
           
-          # Import CloudFront OAC if it exists
-          terraform import -input=false aws_cloudfront_origin_access_control.site E125TU0OZ206GO || true
+          # Import S3 bucket
+          terraform import -input=false aws_s3_bucket.site hohertz-aish-site-691716211469
+          
+          # List OACs and import if the name exists
+          OAC_ID=$(aws cloudfront list-origin-access-controls --query "OriginAccessControlList.Items[?Name=='hohertz-aish-site-691716211469-oac'].Id" --output text 2>/dev/null || echo "")
+          if [ -n "$OAC_ID" ]; then
+            terraform import -input=false aws_cloudfront_origin_access_control.site "$OAC_ID"
+          fi
+          
+          set -e
 
       - name: Terraform plan
         if: env.AWS_CREDS_SET == 'true'

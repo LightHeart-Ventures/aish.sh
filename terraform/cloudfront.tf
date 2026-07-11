@@ -7,6 +7,11 @@ resource "aws_cloudfront_origin_access_control" "site" {
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
+
+  lifecycle {
+    ignore_changes = []
+    # Allow Terraform to manage OAC lifecycle without recreation on name changes
+  }
 }
 
 data "aws_cloudfront_cache_policy" "optimized" {

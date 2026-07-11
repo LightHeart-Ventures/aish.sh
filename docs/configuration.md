@@ -6,6 +6,262 @@
 > [`docs/telemetry-efficiency.md`](https://github.com/LightHeart-Ventures/aish/blob/main/docs/telemetry-efficiency.md)
 > and the referenced modules. Regenerate with the `aish/docs-generator` skill.
 
+## Directory structure & config files
+
+aish uses two separate configuration layers:
+
+### User state & home-level config (`~/.aish/`)
+
+Central store for all user-level state, credentials, and configurations. Created
+on first launch.
+
+```
+~/.aish/
+├── aish.db                 # SQLite: durable memory, sessions, coordinator logs, goals
+├── aish.rc                 # Shell initialization (loaded on startup; can set env vars, aliases)
+├── aish.config             # JSON/TOML: user preferences (model, backend, theme, etc.)
+├── .mcp.json               # MCP server definitions (Claude Desktop compatible)
+├── credentials             # INI-style: credentials, profiles, secrets (not git-tracked)
+├── skills/                 # User-installed skills (`:skill add`)
+│   ├── my-skill/
+│   │   └── SKILL.md
+│   └── ...
+├── plugins/                # Third-party plugins
+│   ├── my-plugin/
+│   │   ├── plugin.json
+│   │   ├── skills/
+│   │   └── ...
+│   └── ...
+├── worktrees/              # Git worktrees for background coordinators
+│   ├── <project>--<branch>/
+│   │   └── w_<id>/
+│   └── ...
+└── sessions/               # Session metadata & environment snapshots
+    ├── <session-id>.json
+    └── ...
+```
+
+### Repository-level config (`.atum/` dir in project)
+
+When aish runs in a git repository, it discovers and uses `.atum/` for per-project
+state. This directory is typically `.gitignore`-d.
+
+```
+<project>/.atum/
+├── config.json             # Project-specific settings (workspace config, integrations)
+├── run-<id>.jsonl          # Agent orchestration run logs (background job transcripts)
+├── .mcp.json               # Project-specific MCP overrides (optional)
+└── secrets.env             # Local secrets (not git-tracked)
+```
+
+## aish.rc — Shell initialization
+
+The `~/.aish/aish.rc` file is sourced on startup and can set environment
+variables, aliases, or define functions. Syntax is shell-like (POSIX subset):
+
+```bash
+# Set a preferred model
+export AISH_MODEL=claude-sonnet-4-6
+
+# Disable telemetry
+export AISH_TELEMETRY_UNBUFFERED=1
+
+# Define an alias
+alias p="!git add -A && git commit && git push"
+
+# Control the safety mode
+export AISH_MODE=careful
+
+# Set the update channel (stable by default, dev for pre-releases)
+export AISH_UPDATE_CHANNEL=stable
+```
+
+Best practices:
+- Use `export VAR=value` for env vars (no spaces around `=`)
+- Define aliases with `alias name="command"`
+- Comment with `#`
+- Avoid shell constructs like pipes or conditionals — keep it declarative
+
+### Customizing aish.rc
+
+Edit with:
+```bash
+:edit ~/.aish/aish.rc
+```
+
+Then reload (without restart):
+```bash
+:source
+```
+
+Or restart the shell entirely:
+```bash
+:restart
+```
+
+## aish.config — User preferences
+
+The `~/.aish/aish.config` file (JSON or TOML) stores user-level preferences
+such as default model, backend, theme, and safety mode.
+
+**Example (JSON):**
+```json
+{
+  "model": "claude-opus-4-6",
+  "backend": "claude",
+  "mode": "careful",
+  "theme": "dark",
+  "telemetry_enabled": false,
+  "bell_on_complete": true,
+  "reasoning_memo_enabled": true
+}
+```
+
+**Example (TOML):**
+```toml
+model = "claude-opus-4-6"
+backend = "claude"
+mode = "careful"
+theme = "dark"
+
+[telemetry]
+enabled = false
+
+[notifications]
+bell_on_complete = true
+```
+
+These settings are used as **defaults** and can be overridden by:
+1. Environment variables (highest priority)
+2. Launch flags (e.g., `aish --mode paranoid`)
+3. Runtime commands (e.g., `:mode normal`, `:model claude-haiku-4`)
+4. This config file
+
+## .mcp.json — MCP server definitions
+
+The `~/.aish/.mcp.json` file (Claude Desktop–compatible format) defines all
+connected MCP servers. When aish starts, it loads this file and establishes
+connections to the declared servers.
+
+**Format:**
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@atum-ai/mcp-github"],
+      "env": {
+        "GITHUB_TOKEN": "${profile:github_token}"
+      }
+    },
+    "aws": {
+      "command": "npx",
+      "args": ["-y", "aws-cdk-tools"],
+      "env": {
+        "AWS_PROFILE": "default"
+      }
+    },
+    "sqlite": {
+      "command": "sqlite3",
+      "args": ["/path/to/database.db"]
+    }
+  }
+}
+```
+
+**Key points:**
+- `${profile:KEY}` references a credential from `~/.aish/credentials` — secrets
+  are never stored in the JSON.
+- Each server has a `command` and optional `args` + `env`.
+- Servers are loaded on startup; use `:mcp list` to see connected servers.
+- Use `:mcp restart` to reload the file after editing.
+
+### Project-level MCP overrides (`.atum/.mcp.json`)
+
+A project can provide a `.atum/.mcp.json` to define or override MCP servers
+for that repository only. This is useful for project-specific integrations
+(e.g., a Terraform backend, custom database, proprietary tools).
+
+## credentials — Credentials & profiles
+
+The `~/.aish/credentials` file stores sensitive data using an INI-like format:
+
+```ini
+[github_token]
+token = ghp_...
+
+[aws]
+profile = default
+region = us-east-1
+
+[anthropic]
+api_key = sk-...
+
+[custom_api]
+base_url = https://api.example.com
+api_key = xxx
+```
+
+Access credentials in configs and MCP definitions using `${profile:KEY}`:
+```json
+{
+  "env": {
+    "GITHUB_TOKEN": "${profile:github_token}"
+  }
+}
+```
+
+This pattern ensures secrets are never hardcoded in tracked files.
+
+### Security notes
+
+- **Never commit credentials to git.** Add `.aish/credentials` to `.gitignore`.
+- **Permissions:** aish creates `~/.aish/credentials` with mode `0600` (read/write
+  by owner only).
+- **Profile precedence:** `:profile list` shows active profiles; `:profile switch
+  <name>` changes the context.
+
+## .atum/config.json — Project configuration
+
+When aish is used in a git repository, a `.atum/config.json` file can store
+per-project settings:
+
+```json
+{
+  "project_name": "my-app",
+  "orchestration": {
+    "max_rounds": 20,
+    "max_failed_attempts": 3,
+    "fanout_tier": "interactive"
+  },
+  "integrations": {
+    "github_owner": "LightHeart-Ventures",
+    "github_repo": "my-app",
+    "slack_channel": "#dev-notifications"
+  },
+  "workspace": {
+    "root": ".",
+    "entrypoints": ["src/main.rs", "Cargo.toml"],
+    "lint_cmd": "cargo clippy -- -D warnings",
+    "test_cmd": "cargo test",
+    "build_cmd": "cargo build --release"
+  }
+}
+```
+
+This allows the agent to understand the project structure and adjust its
+behavior accordingly.
+
+## Environment variable precedence
+
+Settings are resolved in this order (highest to lowest priority):
+
+1. **Launch flags** (e.g., `aish --mode paranoid --model claude-opus-4-6`)
+2. **Environment variables** (e.g., `AISH_MODE=paranoid`)
+3. **aish.rc** (e.g., `export AISH_MODE=careful`)
+4. **aish.config** (JSON/TOML file)
+5. **Defaults** (baked into the binary)
+
 ## Required
 
 | Variable | Purpose |
@@ -133,4 +389,4 @@ All best-effort; none change behavior. See `docs/telemetry-efficiency.md` for de
 
 ---
 
-*See also: [Command Reference](./commands.md) · [Getting Started](./getting-started.md)*
+*See also: [Command Reference](./commands.md) · [Getting Started](./getting-started.md) · [Architecture](./architecture.md) · [Plugin System](./plugins.md)*

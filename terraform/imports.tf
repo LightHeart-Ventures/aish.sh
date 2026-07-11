@@ -13,8 +13,3 @@ import {
   to = aws_s3_bucket.site
   id = "hohertz-aish-site-691716211469"
 }
-
-import {
-  to = aws_cloudfront_origin_access_control.site
-  id = "E2GZUHBIFMQC0X"
-}

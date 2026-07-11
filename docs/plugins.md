@@ -1,417 +1,269 @@
-# Plugins Guide
+# Plugin System
 
-> Grounded in aish CLI version **0.29.3+**. Plugins enable community-driven skill contributions and customization.
+The aish plugin system allows you to extend the shell with custom skills, MCP servers, and lifecycle hooks without modifying the core binary.
 
-## What is a Plugin?
+## Overview
 
-A **plugin** is a packaged collection of **skills**, **MCP servers**, and lifecycle hooks that extend aish without modifying the core binary. Plugins live under `~/.aish/plugins/<id>/` and are discovered and loaded automatically on startup.
+**Plugins** are self-contained packages that live under `~/.aish/plugins/<id>/` and contribute:
+- **Skills** — expert playbooks (SKILL.md files) that augment the skill catalog
+- **Lifecycle hooks** — observers and gates that run before/after tool calls
+- **Configuration** — declared via `plugin.json` at the plugin root
 
-Plugins are the mechanism for:
-- **Extending skill catalogs** — adding custom playbooks alongside built-in skills
-- **Registering MCP servers** — bundling specialized Model Context Protocol integrations
-- **Lifecycle customization** — hooking into aish events (`PreToolUse`, `PostToolUse`, etc.) to enforce policy, audit, or coordinate behavior
-- **Community distribution** — sharing reusable workflows via public repos
+Each plugin is identified by a unique `<id>` (e.g., `hello-world`, `custom-ops`). When aish starts, it discovers all installed plugins, merges their skills into the catalog, and registers any lifecycle hooks.
 
-## Plugin Directory Structure
+## Plugin structure
 
 ```
-~/.aish/plugins/
-├── <plugin-id>/
-│   ├── plugin.json              # Plugin manifest (required)
-│   ├── skills/
-│   │   ├── skill-1/SKILL.md
-│   │   ├── skill-2/SKILL.md
-│   │   └── ...
-│   ├── mcp/
-│   │   ├── server-config.json   # MCP server definitions (optional)
-│   │   └── ...
-│   ├── hooks/
-│   │   └── lifecycle.js         # Event handlers (optional)
-│   ├── resources/
-│   │   └── ...                  # Bundled assets, docs, etc.
-│   └── README.md                # Plugin documentation
+~/.aish/plugins/<id>/
+├── plugin.json          # Metadata and lifecycle hook declarations
+├── skills/              # (Optional) SKILL.md files
+│   ├── my-skill/
+│   │   └── SKILL.md
+│   └── another-skill/
+│       └── SKILL.md
+├── mcp-servers/         # (Optional) MCP server definitions
+│   └── custom-mcp.json
+└── README.md            # Plugin documentation
 ```
 
-## Plugin Manifest (`plugin.json`)
-
-Every plugin must include a `plugin.json` at its root:
+## plugin.json schema
 
 ```json
 {
-  "id": "my-org/my-plugin",
+  "id": "custom-ops",
+  "name": "Custom Operations",
   "version": "1.0.0",
-  "name": "My Custom Plugin",
-  "description": "Adds specialized workflows and integrations",
-  "author": "Your Name <email@example.com>",
-  "license": "Apache-2.0",
-  "enabled": true,
+  "description": "Custom skills and hooks for team workflows",
+  "author": "Your Name",
+  "license": "MIT",
+  "aish_version": ">=0.25.0",
+  "lifecycle_hooks": [
+    {
+      "event": "PreToolUse",
+      "handler": "custom-ops/hooks/pre_tool_use.sh"
+    },
+    {
+      "event": "PostToolUse",
+      "handler": "custom-ops/hooks/post_tool_use.sh"
+    }
+  ],
   "skills": [
     {
-      "id": "my-skill-1",
-      "path": "skills/skill-1/SKILL.md",
-      "enabled": true
+      "id": "custom-deploy",
+      "path": "skills/custom-deploy/SKILL.md"
     }
-  ],
-  "mcp_servers": [
-    {
-      "id": "my-mcp-server",
-      "config_path": "mcp/server-config.json",
-      "enabled": true
-    }
-  ],
-  "lifecycle_hooks": {
-    "enabled": true,
-    "handlers": "hooks/lifecycle.js"
-  },
-  "dependencies": {
-    "aish": ">=0.29.0"
-  }
+  ]
 }
 ```
 
-### Manifest Fields
+### Fields
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | Yes | Unique plugin identifier (namespace/name format recommended) |
-| `version` | semver | Yes | Plugin version (follows semantic versioning) |
-| `name` | string | Yes | Display name for the plugin |
-| `description` | string | No | Short description of what the plugin does |
-| `author` | string | No | Author name and email |
-| `license` | string | No | License identifier (SPDX) |
-| `enabled` | boolean | No | Whether the plugin is active (default: true) |
-| `skills` | array | No | Array of skill definitions |
-| `mcp_servers` | array | No | Array of MCP server definitions |
-| `lifecycle_hooks` | object | No | Event hook configuration |
-| `dependencies` | object | No | Version constraints (e.g., `"aish": ">=0.29.0"`) |
+| `id` | string | Yes | Unique plugin identifier (lowercase, kebab-case) |
+| `name` | string | Yes | Human-readable plugin name |
+| `version` | string | Yes | Semantic version (e.g., `1.0.0`) |
+| `description` | string | Yes | Short description of what the plugin does |
+| `author` | string | No | Plugin author name/email |
+| `license` | string | No | SPDX license identifier |
+| `aish_version` | string | No | Minimum aish version required (e.g., `>=0.25.0`) |
+| `lifecycle_hooks` | array | No | List of event handlers (see below) |
+| `skills` | array | No | List of skills contributed by this plugin |
 
-## Skills in Plugins
+## Lifecycle hooks
 
-Each skill is a `SKILL.md` file following the standard aish skill format:
+Hooks run at key points in the aish lifecycle. Two events are currently supported:
 
-```yaml
----
-name: example-skill
-categories: [infrastructure, automation]
-applies-to: [terraform, aws]
-description: Automates Terraform workflows for AWS infrastructure
-version: 1.0.0
-tags: [iac, terraform, aws, devops]
-license: Apache-2.0
----
+### PreToolUse
 
-# Example Skill
+Fires **before** a tool is invoked. The handler receives:
+- `TOOL_NAME` — name of the tool (e.g., `run_program`)
+- `TOOL_INPUT` — tool arguments as JSON
+- `MODE` — confirmation mode (`paranoid`, `careful`, `normal`, `yolo`)
 
-## Overview
-[Skill documentation follows standard SKILL.md format...]
+**Handler must exit with:**
+- `0` — allow the tool call (proceed normally)
+- `1` — block the tool call (treat as a denial, emit an error)
+- Any other exit code — warning, but allow the call
 
-## Usage
-...
+Example handler:
+
+```bash
+#!/bin/bash
+# hooks/pre_tool_use.sh — block rm on production paths
+
+if [[ "$TOOL_NAME" == "run_program" ]]; then
+  if grep -q "rm -rf /prod" <<< "$TOOL_INPUT"; then
+    echo "❌ Blocked: dangerous rm on production path"
+    exit 1
+  fi
+fi
+
+exit 0
 ```
 
-Skills in plugins are auto-discovered and merged into the global skill catalog. If a plugin skill has the same `name` as an installed skill, the **installed skill wins**.
+### PostToolUse
 
-### Example: Adding a Custom Skill
+Fires **after** a tool completes (success or failure). The handler receives:
+- `TOOL_NAME` — name of the tool
+- `TOOL_RESULT` — tool output/result
+- `TOOL_EXIT_CODE` — exit code (0 = success)
+
+Handler exit code is ignored; use for logging, metrics, or notifications.
+
+Example handler:
+
+```bash
+#!/bin/bash
+# hooks/post_tool_use.sh — log slow operations
+
+start=$(date +%s%N)
+duration=$(( ($(date +%s%N) - start) / 1000000 ))
+
+if (( duration > 5000 )); then  # > 5 seconds
+  echo "⚠️  Slow tool: $TOOL_NAME took ${duration}ms"
+fi
+```
+
+## Skills in plugins
+
+Skills contributed by a plugin are discovered from the `skills/` directory and merged into the global skill catalog. Each subdirectory becomes a skill:
 
 ```
-~/.aish/plugins/my-org/my-plugin/
-├── plugin.json
-└── skills/
-    └── deploy-app/
-        └── SKILL.md
+plugins/custom-ops/skills/
+├── deploy-k8s/
+│   ├── SKILL.md
+│   └── assets/
+│       └── deploy.sh
+└── audit-repo/
+    └── SKILL.md
 ```
 
-In `plugin.json`:
+When `:skill list` runs, both `deploy-k8s` and `audit-repo` are discoverable alongside built-in skills. If a plugin skill has the same name as an installed skill, **the installed skill takes precedence**.
+
+### Skill metadata in plugin.json (optional)
+
+You can declare skills explicitly to add metadata:
+
 ```json
 {
   "skills": [
     {
-      "id": "deploy-app",
-      "path": "skills/deploy-app/SKILL.md",
-      "enabled": true
+      "id": "deploy-k8s",
+      "path": "skills/deploy-k8s/SKILL.md",
+      "category": "devops",
+      "tags": ["kubernetes", "deployment"]
     }
   ]
 }
 ```
 
-## MCP Servers in Plugins
+## Installing plugins
 
-Plugins can bundle MCP server definitions, allowing custom tools to be exposed to the agent:
-
-```json
-{
-  "mcp_servers": [
-    {
-      "id": "my-custom-server",
-      "config_path": "mcp/server-config.json",
-      "enabled": true
-    }
-  ]
-}
-```
-
-Example `mcp/server-config.json`:
-```json
-{
-  "type": "stdio",
-  "command": "python",
-  "args": ["my_server.py"],
-  "env": {
-    "DEBUG": "1"
-  }
-}
-```
-
-MCP servers registered by plugins are loaded alongside core MCP servers and managed via `:mcp list` / `:mcp enable` / `:mcp disable`.
-
-## Lifecycle Hooks
-
-Plugins can observe or **block** aish events via lifecycle hooks. Hooks run in a **sandboxed JavaScript VM** within the aish process.
-
-### Supported Events
-
-| Event | When | Can Block? | Use Case |
-|-------|------|-----------|----------|
-| `PreToolUse` | Before any tool call (read/write/run) | Yes | Policy enforcement, audit, rate-limiting |
-| `PostToolUse` | After a tool call completes | No | Logging, metrics, state synchronization |
-| `PreCommand` | Before a `:command` is parsed | Yes | Command interception, routing override |
-| `PostCommand` | After a `:command` completes | No | Analytics, cleanup |
-| `SessionStart` | When aish starts | No | Initialization, setup |
-| `SessionEnd` | When aish exits | No | Cleanup, final audit |
-
-### Example: `hooks/lifecycle.js`
-
-```javascript
-// Audit all file writes
-exports.PreToolUse = function(event) {
-  if (event.toolName === 'write_file') {
-    console.log(`[AUDIT] Writing ${event.input.path}`);
-    
-    // Block writes to /etc/
-    if (event.input.path.startsWith('/etc/')) {
-      return {
-        blocked: true,
-        reason: 'Write to /etc/ not allowed by policy'
-      };
-    }
-  }
-  return { blocked: false };
-};
-
-// Log all command executions
-exports.PostCommand = function(event) {
-  console.log(`[TELEMETRY] Command: ${event.command}`);
-};
-```
-
-Register in `plugin.json`:
-```json
-{
-  "lifecycle_hooks": {
-    "enabled": true,
-    "handlers": "hooks/lifecycle.js"
-  }
-}
-```
-
-## Current Plugins
-
-The aish community and LightHeart Ventures maintain several reference plugins:
-
-### Official Plugins
-
-| Plugin | Purpose | Location |
-|--------|---------|----------|
-| `lightheart/agent-skills` | LightHeart Ventures standard skill library | GitHub |
-| `lightheart/aws-mcp` | AWS SDK integration via MCP | GitHub |
-| `lightheart/observability-mcp` | Observability tooling (SigNoz, datadog, etc.) | GitHub |
-
-### Community-Contributed Plugins
-
-| Plugin | Purpose | Maintained By |
-|--------|---------|---|
-| `community/terraform-skills` | Terraform automation playbooks | Community |
-| `community/kubernetes-mcp` | Kubernetes API access | Community |
-| `alirezarezvani/tdd-guide` | Test-driven development workflows | alirezarezvani |
-
-Browse all plugins: `:plugin list`
-
-## Installing a Plugin
-
-### From GitHub
+### From a local directory
 
 ```bash
-:plugin add https://github.com/owner/repo [--branch main]
-```
+# Copy a plugin into ~/.aish/plugins
+mkdir -p ~/.aish/plugins/my-plugin
+cp -r /path/to/plugin/* ~/.aish/plugins/my-plugin/
 
-aish clones the repo to `~/.aish/plugins/<owner>/<repo>` and loads it immediately.
-
-### From Local Disk
-
-```bash
-# Manual setup
-mkdir -p ~/.aish/plugins/my-org/my-plugin
-git clone https://github.com/my-org/my-plugin ~/.aish/plugins/my-org/my-plugin
-:restart  # Reload plugins
-```
-
-### Enabling/Disabling
-
-```bash
-:plugin enable <plugin-id>
-:plugin disable <plugin-id>
-```
-
-Disabling a plugin keeps it on disk but prevents it from loading — skills and MCP servers remain unavailable until re-enabled.
-
-## Creating a Plugin
-
-### Step 1: Initialize the Plugin Structure
-
-```bash
-mkdir -p ~/.aish/plugins/my-org/my-plugin/skills
-cd ~/.aish/plugins/my-org/my-plugin
-```
-
-### Step 2: Create `plugin.json`
-
-```json
-{
-  "id": "my-org/my-plugin",
-  "version": "1.0.0",
-  "name": "My Custom Plugin",
-  "description": "Adds specialized workflows",
-  "author": "Your Name <email@example.com>",
-  "license": "Apache-2.0",
-  "enabled": true,
-  "skills": []
-}
-```
-
-### Step 3: Add a Skill
-
-Create `skills/example/SKILL.md`:
-
-```yaml
----
-name: example-skill
-description: An example skill from the plugin
-version: 1.0.0
----
-
-# Example Skill
-
-[Your skill documentation here]
-```
-
-Update `plugin.json`:
-```json
-{
-  "skills": [
-    {
-      "id": "example-skill",
-      "path": "skills/example/SKILL.md",
-      "enabled": true
-    }
-  ]
-}
-```
-
-### Step 4: Test the Plugin
-
-Restart aish:
-```bash
+# Restart aish to load it
 :restart
 ```
 
-Verify the plugin loaded:
-```bash
-:plugin info my-org/my-plugin
-:skill list | grep example-skill
-```
-
-### Step 5: Publish
-
-Convert to a Git repo and push to GitHub:
+### From a GitHub repository
 
 ```bash
-cd ~/.aish/plugins/my-org/my-plugin
-git init
-git add .
-git commit -m "Initial commit: my-plugin"
-git remote add origin https://github.com/my-org/my-plugin.git
-git push -u origin main
+# Clone directly
+git clone https://github.com/user/aish-plugin-example ~/.aish/plugins/example
+:restart
 ```
 
-Then others can install it with:
+## Listing and managing plugins
+
 ```bash
-:plugin add https://github.com/my-org/my-plugin
+# List all installed plugins
+:plugin list
+
+# Show details about a plugin
+:plugin info custom-ops
+
+# Disable a plugin (rename the directory)
+mv ~/.aish/plugins/custom-ops ~/.aish/plugins/custom-ops.disabled
+:restart
+
+# Remove a plugin
+rm -rf ~/.aish/plugins/custom-ops
+:restart
 ```
 
-## Plugin Development Best Practices
+## Best practices
 
-1. **Namespace your plugin ID** — use `org/name` format to avoid conflicts
-2. **Semantic versioning** — follow semver for version bumps
-3. **Clear SKILL.md** — each skill should have comprehensive documentation
-4. **Document dependencies** — list aish version and MCP requirements in `plugin.json`
-5. **Test lifecycle hooks carefully** — blocking hooks are powerful but can break aish if buggy
-6. **Keep plugins focused** — one clear purpose beats a kitchen sink
-7. **Publish as open-source** — share via GitHub so others can benefit
-8. **Track issues** — use GitHub issues for bug reports and feature requests
+✅ **Do:**
+- Use clear, unique plugin IDs (no spaces, use kebab-case)
+- Version your plugin following semver
+- Include a README explaining what the plugin does
+- Test lifecycle hooks before deploying
+- Document any environment variables or configuration required
+- Use `:skill` conventions for naming and documentation
 
-## Lifecycle & Versioning
+❌ **Don't:**
+- Create plugins that conflict with core aish functionality
+- Use PreToolUse hooks to block legitimate workflows without clear messaging
+- Assume a specific aish version without declaring `aish_version` in plugin.json
+- Store sensitive data (keys, tokens) inside the plugin directory
+- Create plugins that require external services without clear error handling
 
-Plugins follow semantic versioning and should declare their aish version requirement:
+## Example: minimal plugin
 
+**~/.aish/plugins/hello-world/plugin.json**:
 ```json
 {
-  "version": "1.2.3",
-  "dependencies": {
-    "aish": ">=0.29.0,<1.0.0"
-  }
+  "id": "hello-world",
+  "name": "Hello World",
+  "version": "1.0.0",
+  "description": "Example plugin with a simple skill",
+  "author": "Your Name",
+  "license": "MIT"
 }
 ```
 
-If a plugin declares a dependency on aish `>=0.30.0` but you're running `0.29.3`, aish will warn and skip loading the plugin.
+**~/.aish/plugins/hello-world/skills/greet/SKILL.md**:
+```markdown
+---
+name: hello-world
+description: "Greet the user"
+---
 
-## Troubleshooting
+# Hello World
 
-### Plugin not loading
+A simple skill that greets the user.
 
-Check the aish log:
-```bash
-:log view  # or tail ~/.aish/aish.log
+When to use: whenever you want a friendly greeting.
+
+Steps:
+1. Echo a greeting message
+2. Done!
 ```
 
-Verify the `plugin.json` is valid JSON:
+**~/.aish/plugins/hello-world/README.md**:
+```markdown
+# Hello World Plugin
+
+A minimal example plugin for aish.
+
+## Install
+
 ```bash
-:plugin info <plugin-id>
+git clone https://github.com/user/aish-plugin-hello-world ~/.aish/plugins/hello-world
+:restart
 ```
 
-### Skills not appearing
+## Usage
 
-Confirm the plugin is enabled:
-```bash
-:plugin list
+Use `:skill list` to see the `hello-world` skill.
 ```
 
-Check that skill paths in `plugin.json` are correct:
-```bash
-ls -la ~/.aish/plugins/<plugin-id>/skills/
-```
+---
 
-### MCP server not connecting
-
-Verify the MCP config:
-```bash
-:mcp list
-:mcp debug <server-id>
-```
-
-Check file permissions and command availability.
-
-## See Also
-
-- [Architecture](./architecture.md) — how plugins integrate with aish internals
-- [Commands Reference](./commands.md) — `:plugin`, `:mcp`, `:skill` commands
-- [Configuration](./configuration.md) — `AISH_PLUGINS_DIR`, plugin env vars
+*See also: [Architecture](./architecture.md) · [Commands](./commands.md) · [Configuration](./configuration.md)*

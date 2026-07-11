@@ -1,12 +1,28 @@
 # ---------------------------------------------------------------------------
 # CloudFront — OAC to the private bucket, custom domain, managed policies.
 # ---------------------------------------------------------------------------
+# Data source to reference the existing OAC (created manually or by a prior run).
+# Only evaluated when oac_id is provided; otherwise the resource below creates a new one.
+data "aws_cloudfront_origin_access_control" "site" {
+  count = var.oac_id != "" ? 1 : 0
+  id    = var.oac_id
+}
+
+# Fallback: create the OAC if var.oac_id is empty (first deploy, or no existing OAC).
+# When oac_id is provided, the data source above is used instead.
 resource "aws_cloudfront_origin_access_control" "site" {
+  count = var.oac_id == "" ? 1 : 0
+
   name                              = "${local.bucket_name}-oac"
   description                       = "OAC for ${var.domain_name} static site"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
+
+  lifecycle {
+    ignore_changes = []
+    # Allow Terraform to manage OAC lifecycle without recreation on name changes
+  }
 }
 
 data "aws_cloudfront_cache_policy" "optimized" {
@@ -28,7 +44,7 @@ resource "aws_cloudfront_distribution" "site" {
   origin {
     domain_name              = aws_s3_bucket.site.bucket_regional_domain_name
     origin_id                = "s3-${aws_s3_bucket.site.id}"
-    origin_access_control_id = aws_cloudfront_origin_access_control.site.id
+    origin_access_control_id = var.oac_id != "" ? data.aws_cloudfront_origin_access_control.site[0].id : aws_cloudfront_origin_access_control.site[0].id
   }
 
   default_cache_behavior {

@@ -1,0 +1,117 @@
+name: Deploy site
+
+# Deploys the static marketing site in ./site to AWS (S3 + CloudFront) via the
+# Terraform config in ./terraform.
+#
+#   pull_request  -> terraform fmt/validate only (no AWS needed); plan too once
+#                    the AWS OIDC role secret is configured
+#   push to main  -> plan + apply (deploy) + CloudFront invalidation
+#   workflow_dispatch -> manual plan + apply
+#
+# AWS auth is via GitHub OIDC (no long-lived keys). Until the one-time bootstrap
+# is done (see terraform/README.md § "CI/CD"), the AWS-dependent steps are
+# skipped and CI still runs fmt + validate green. To enable plan/apply:
+#   - repo secret  AWS_DEPLOY_ROLE_ARN : IAM role ARN trusting this repo's OIDC
+#   - remote state : S3 bucket `hohertz-tfstate` (backend in terraform/versions.tf)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "terraform/**"
+      - ".github/workflows/deploy-site.yml"
+  pull_request:
+    paths:
+      - "site/**"
+      - "terraform/**"
+      - ".github/workflows/deploy-site.yml"
+  workflow_dispatch:
+
+# Least-privilege token: contents:read for checkout.
+permissions:
+  contents: read
+
+# Never let two deploys race on the same Terraform state.
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  TF_IN_AUTOMATION: "true"
+  # Blank the named profile at the highest-precedence layer (-var on the plan/
+  # apply commands below) so the AWS provider + CLI use the credential env vars
+  # (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY) instead of a ~/.aws/credentials
+  # profile. NOTE: a TF_VAR_ env var will NOT work here — terraform.tfvars
+  # (aws_profile = "hohertz") overrides environment variables in Terraform's
+  # precedence order; only a command-line -var beats terraform.tfvars.
+  TF_CLI_ARGS_plan: -var=aws_profile=
+  TF_CLI_ARGS_apply: -var=aws_profile=
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  terraform:
+    name: terraform ${{ github.event_name == 'pull_request' && 'plan' || 'apply' }}
+    runs-on: ubuntu-latest
+    # Attach a protected environment on apply so approvals/secrets can be scoped.
+    environment: ${{ (github.event_name != 'pull_request') && 'production' || '' }}
+    defaults:
+      run:
+        working-directory: terraform
+    # Surface the secret as a job env var so steps can gate on its presence —
+    # the `secrets` context is not available in step-level `if:` expressions,
+    # but `env` is. Empty until the operator sets the AWS credentials.
+    env:
+      AWS_CREDS_SET: ${{ secrets.AWS_ACCESS_KEY_ID != '' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: "~> 1.10"
+
+      # ---- AWS-free static checks: run on every PR, even before bootstrap ----
+      - name: Terraform fmt (check)
+        run: terraform fmt -check -recursive
+
+      - name: Terraform validate
+        # Provider-only init (no S3 backend, no AWS creds) so config validity is
+        # checked on every PR without requiring the OIDC role or state bucket.
+        run: |
+          terraform init -input=false -backend=false
+          terraform validate -no-color
+
+      # ---- AWS-dependent steps: only once AWS credentials are configured ----
+      - name: Terraform init (S3 backend)
+        if: env.AWS_CREDS_SET == 'true'
+        run: terraform init -input=false -reconfigure
+
+      - name: Terraform plan
+        if: env.AWS_CREDS_SET == 'true'
+        run: terraform plan -input=false -no-color
+
+      - name: Fetch existing OAC ID (if exists)
+        if: env.AWS_CREDS_SET == 'true' && github.event_name != 'pull_request'
+        id: oac
+        run: |
+          OAC_ID=$(aws cloudfront list-origin-access-controls --query "OriginAccessControlList.Items[?Name=='hohertz-aish-site-691716211469-oac'].Id" --output text 2>/dev/null || echo "")
+          echo "id=${OAC_ID}" >> $GITHUB_OUTPUT
+          if [ -n "${OAC_ID}" ]; then
+            echo "Found existing OAC: ${OAC_ID}"
+          else
+            echo "No existing OAC found; will create a new one"
+          fi
+
+      - name: Terraform apply
+        if: env.AWS_CREDS_SET == 'true' && github.event_name != 'pull_request'
+        run: terraform apply -input=false -auto-approve -no-color -var="oac_id=${{ steps.oac.outputs.id }}"
+
+      - name: Bootstrap reminder (AWS credentials not configured)
+        if: env.AWS_CREDS_SET != 'true'
+        run: |
+          echo "::notice title=Terraform deploy not yet active::Ran fmt + validate only. Set repo secrets AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to enable plan/apply."

@@ -1,0 +1,14 @@
+{
+  "//": "MCP gateway pointer injected by the aish_enterprise plugin. The plugin loader MERGES this server into the client's MCP set (same schema as the client's own .mcp.json — src/mcp.rs). This is the single managed proxy (Pillar D): it holds OAuth/secrets for downstream servers, curates the per-org allow-list, meters calls, and enforces policy — so the user installs nothing else locally. ${env:...} is substituted by the client; the credential VALUE never leaves ~/.aish/credentials.",
+  "mcpServers": {
+    "aish-enterprise-gateway": {
+      "type": "http",
+      "url": "${env:AISH_ENTERPRISE_GATEWAY_URL}/v1/tenants/${env:AISH_ENTERPRISE_TENANT}/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:AISH_ENTERPRISE_API_KEY}",
+        "X-Aish-Client": "aish_enterprise-plugin/0.1.0"
+      },
+      "credentials": { "file": "~/.aish/credentials", "profile": "aish_enterprise" }
+    }
+  }
+}

@@ -110,4 +110,11 @@ catalog, orchestration-run traces, FOCUS cost data, usage caps, and notification
 
 ---
 
+> **Next:** [`05-aish-enterprise-plugin.md`](./05-aish-enterprise-plugin.md) packages
+> this net-new glue — the hook-forwarder, config pointers, and login command — as a
+> single OSS-client **plugin** (`aish_enterprise`), so the commercial layer ships
+> without touching aish OSS source.
+
+---
+
 *See [`README.md`](./README.md) for the enterprise-docs index.*

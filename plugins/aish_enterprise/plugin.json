@@ -1,0 +1,100 @@
+{
+  "id": "aish_enterprise",
+  "name": "aish Enterprise",
+  "version": "0.1.0",
+  "description": "Connects the open-source aish client to the aish.sh commercial control plane — managed tiered memory, LLM tracing + tuning recs, governance/policy, a managed MCP gateway, and an org skill registry — entirely through aish's existing hooks / skills / MCP / config seams. No fork of the OSS binary.",
+  "author": "LightHeart Ventures",
+  "license": "Proprietary",
+  "homepage": "https://aish.sh",
+  "min_aish_version": "0.11.0",
+  "tags": ["enterprise", "control-plane", "observability", "governance", "memory", "mcp-gateway", "registry"],
+
+  "provides": {
+    "mcp_server": true,
+    "skills": [],
+    "tools": ["aish_login", "aish_whoami", "aish_status", "aish_policy_check"],
+    "lifecycle_hooks": ["on_init", "on_shell_ready", "on_webhook_url_changed", "on_shutdown"],
+    "event_hooks": true,
+    "config": ["mcp_gateway", "skill_registry", "managed_hooks"],
+    "login": true,
+    "memory": true
+  },
+
+  "//provides-notes": {
+    "mcp_server": "Injects a single authenticated aish.sh gateway server into the client MCP set (see .mcp.json). The gateway is the claude.ai-style managed proxy: it holds OAuth/secrets, curates the server list, meters calls, and enforces per-org allow/deny. Powers Pillar D.",
+    "skills": "Empty on disk by design — org-private skills are delivered dynamically by pointing the client skill provider at the aish.sh registry (see config.skill_registry). Powers Pillars C & E.",
+    "event_hooks": "Contributes entries to the client's REAL 33-event hooks.json catalog (src/hooks.rs) — NOT the draft webhook model. Every entry routes an event payload to the forwarder binary; PreToolUse is a blocking policy veto. See hooks.json. This is the load-bearing enterprise seam (Pillars A, B, F, G).",
+    "login": "Device-code auth binding the CLI to a tenant; establishes the credential the forwarder + gateway + registry all reuse. Requires the aish-client `provides.login` capability (tracked in the OSS PLUGIN_SYSTEM_DESIGN addendum)."
+  },
+
+  "event_hooks_file": "hooks.json",
+
+  "lifecycle_hooks_manifest": {
+    "on_init": "hooks/on_init.sh",
+    "on_shell_ready": "hooks/on_shell_ready.sh",
+    "on_webhook_url_changed": "hooks/on_webhook_url_changed.sh",
+    "on_shutdown": "hooks/on_shutdown.sh"
+  },
+
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "tenant_id": {
+        "type": "string",
+        "description": "aish.sh tenant this client is bound to (written by `aish login`)."
+      },
+      "gateway_url": {
+        "type": "string",
+        "default": "https://gateway.aish.sh",
+        "description": "Base URL of the managed MCP gateway (Pillar D). Injected into the client .mcp.json."
+      },
+      "ingest_url": {
+        "type": "string",
+        "default": "https://ingest.aish.sh",
+        "description": "Trace/telemetry + memory-sync ingest endpoint the event forwarder ships payloads to (Pillars A, B)."
+      },
+      "policy_url": {
+        "type": "string",
+        "default": "https://policy.aish.sh",
+        "description": "Policy-decision endpoint consulted by the PreToolUse blocking hook (Pillars F, G)."
+      },
+      "skill_registry_url": {
+        "type": "string",
+        "default": "https://registry.aish.sh",
+        "description": "Org skill registry. Exported as AISH_SKILL_REGISTRY so the client skill provider fetches org-private, versioned, signed skills (Pillars C, E)."
+      },
+      "api_key": {
+        "type": "string",
+        "description": "Tenant credential (env ref: ${env:AISH_ENTERPRISE_API_KEY} or ~/.aish/credentials profile). Never embedded in hook payloads.",
+        "sensitive": true
+      },
+      "policy_enforcement": {
+        "type": "string",
+        "enum": ["off", "audit", "enforce"],
+        "default": "audit",
+        "description": "off = no PreToolUse hook; audit = log decisions, never deny; enforce = deny disallowed tools/commands/servers/models."
+      },
+      "offline_default": {
+        "type": "string",
+        "enum": ["allow", "deny"],
+        "default": "allow",
+        "description": "Fail-open vs fail-closed when the policy endpoint is unreachable. `deny` sets the PreToolUse hook `required:true`."
+      },
+      "memory_sync": {
+        "type": "boolean",
+        "default": true,
+        "description": "Enable tiered-memory sync via MemoryStored / PreCompact / PostCompact hooks (Pillar A)."
+      },
+      "trace_sampling": {
+        "type": "number",
+        "default": 1.0,
+        "description": "0.0–1.0 sampling ratio for TurnEnd / PostToolUse trace ingest."
+      }
+    },
+    "required": ["gateway_url", "ingest_url"]
+  },
+
+  "dependencies": {
+    "curl": ">=7.68"
+  }
+}
